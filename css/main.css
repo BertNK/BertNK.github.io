@@ -1,0 +1,168 @@
+*{
+    background-color: #14303f;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+html{
+    scroll-behavior: smooth;
+}
+.header{
+    width: 100%;
+    height: 65px;
+    background-color: #14303f;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: fixed;
+    top: 0;
+    border-bottom: #5d73a3 2px solid;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 5px 5px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+}
+.headerbox1{
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    flex-direction: row;
+    width: 70%;
+    height: 100%;
+    border-left: #5d73a3 2px solid;
+    border-right: #5d73a3 2px solid;
+}
+@media only screen and (max-width: 500px) {
+    .headerbox1 {
+      width: 0%;
+      border-left: #5d73a3 0px solid;
+    }
+}
+@media only screen and (max-width: 500px) {
+    .headerbox2 {
+      width: 50%;
+    }
+}
+.headerbox2{
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 25px;
+    width: 15%;
+    height: 100%;
+}
+.linkedin{
+    width: 40px;
+    height: 40px;
+}
+.github{
+    width: 40px;
+    height: 40px;
+}
+.tekst1{
+    color: #ffb39b;
+    background: transparent;
+    font-size: 17.5px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.button1{
+    color: #ffb39b;
+    background: transparent;
+    font-size: 17.5px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+/* Middenstuk */
+.container1{
+    height: 1800px;
+    width: 100%;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.container2{
+    height: 700px;
+    width: 100%;
+    background-color: transparent;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+@media only screen and (max-width: 500px) {
+    .container1 {
+      width: auto;
+    }
+}
+@media only screen and (max-width: 500px) {
+    .container2 {
+        flex-direction: column;
+    }
+}
+.blok1{
+    width: 400px;
+    height: 400px;
+    background-color: transparent;
+}
+.blok2{
+    width: 425pxx;
+    height: 425px;
+    background-color: transparent;
+    margin-top: 40px;
+}
+.fotoblokmidden{
+    width: 530px;
+}
+.tekst2{
+    color: #ffb39b;
+    background: transparent;
+    font-size: 37.5px;
+    font-weight: 700;
+    text-decoration: none;
+    margin-bottom: 15px;
+}
+.tekst3{
+    color: #5d73a3;
+    background: transparent;
+    font-size: 27.5px;
+    font-weight: 700;
+    text-decoration: none;
+    margin-top: 10px;
+}
+.tekst4{
+    color: #5d73a3;
+    background: transparent;
+    font-size: 27.5px;
+    font-weight: 700;
+    text-decoration: none;
+    margin-top: 10px;
+    margin-bottom: 35px;
+}
+.chamsys{
+    color: #ffb39b;
+    background: transparent;
+    font-size: 30px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.chamsys:hover{outline: 5px solid #ffb39b; border-radius: 5px;}
+.linkedin:hover{outline: 5px solid #5d73a3; border-radius: 5px; background-color: #5d73a3;}
+.github:hover{outline: 5px solid #5d73a3; border-radius: 5px; background-color: #5d73a3;}
+
+/* transform: rotate(12.5deg); */
+/* Footer */
+.footer{
+    height: 50px;
+    width: 100%;
+    background-color: transparent;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-items: center;
+    gap: 15px;
+}
