@@ -86,7 +86,7 @@
   flex: 1;
 }
 .image-content img {
-  max-width: 96%;
+  max-width: 90%;
   height: auto;
   border-radius: 50px;
 }
