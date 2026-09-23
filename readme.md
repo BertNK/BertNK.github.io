@@ -35,10 +35,10 @@ I'm especially interested in:
 
 ### Languages & Frameworks
 
-[![My Skills](https://skillicons.dev/icons?i=cs,cpp,dotnet,js,html,css,nuxtjs,vue,php,python,lua,bash)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=cs,cpp,dotnet,java,js,html,css,nuxtjs,vue,php,python,lua,bash)](https://skillicons.dev)
 
 ### Tools & Technologies
 
-[![My Tools](https://skillicons.dev/icons?i=git,github,vscode,visualstudio,mysql,sqlite,arduino,linux)](https://skillicons.dev)  
+[![My Tools](https://skillicons.dev/icons?i=git,github,vscode,visualstudio,npm,mysql,sqlite,arduino,linux)](https://skillicons.dev)  
 
 </div>
