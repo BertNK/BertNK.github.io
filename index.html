@@ -3,15 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="main.css">
     <link rel="icon" type="image/x-icon" href="/src/retro.png">
     <title>Bert</title>
 </head>
 <body>
+
+    <!-- Theme toggle -->
+    <button id="theme-toggle" class="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><g stroke-width="2"><line x1="12" y1="1.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22.5" y2="12"/><line x1="4.4" y1="4.4" x2="6.8" y2="6.8"/><line x1="17.2" y1="17.2" x2="19.6" y2="19.6"/><line x1="4.4" y1="19.6" x2="6.8" y2="17.2"/><line x1="17.2" y1="6.8" x2="19.6" y2="4.4"/></g></svg>
+      <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/></svg>
+    </button>
+
+    <!-- Desktop / tablet navbar -->
+    <nav class="navbar">
+      <ul class="nav-links">
+        <li><a href="#home" data-section="home">[ Home ]</a></li>
+        <li><a href="#about" data-section="about">[ About ]</a></li>
+        <li><a href="#skills" data-section="skills">[ Skills ]</a></li>
+        <li><a href="#hobbies" data-section="hobbies">[ Hobbies ]</a></li>
+        <li><a href="#contact" data-section="contact">[ Contact ]</a></li>
+      </ul>
+    </nav>
+
+    <!-- Mobile gallery rail -->
+    <nav class="rail" aria-label="Section navigation">
+      <ol class="rail-list">
+        <li class="rail-item" data-section="home"><a href="#home"><span class="rail-index">01</span><span class="rail-label">Home</span><span class="rail-dot"></span></a></li>
+        <li class="rail-item" data-section="about"><a href="#about"><span class="rail-index">02</span><span class="rail-label">About</span><span class="rail-dot"></span></a></li>
+        <li class="rail-item" data-section="skills"><a href="#skills"><span class="rail-index">03</span><span class="rail-label">Skills</span><span class="rail-dot"></span></a></li>
+        <li class="rail-item" data-section="hobbies"><a href="#hobbies"><span class="rail-index">04</span><span class="rail-label">Hobbies</span><span class="rail-dot"></span></a></li>
+        <li class="rail-item" data-section="contact"><a href="#contact"><span class="rail-index">05</span><span class="rail-label">Contact</span><span class="rail-dot"></span></a></li>
+      </ol>
+    </nav>
+
     <div class="landing-page" id="home">
         <section class="hero">
           <div class="hero-content">
-            <h1>Hello, my name is <span class="highlight">Bert.</span></h1>
+            <p class="eyebrow">01 // Software Developer</p>
+            <h1>Hello, my name is <span class="highlight" id="hero-name" title="try clicking me three times">Bert.</span></h1>
             <h1>I am a <span class="highlight">Software Developer</span></h1>
             <div class="cta-buttons">
               <a href="#about" class="cta-button">About me</a>
@@ -20,72 +53,84 @@
           </div>
         </section>
       </div>
-      <nav class="navbar">
-        <ul class="nav-links">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#hobbies">Hobbies</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-      </nav>
+
       <div id="about">
         <section class="hero">
           <div class="hero-content2">
             <div class="text-content">
+              <p class="eyebrow">02 // Profile</p>
               <h1>About Me</h1>
               <p>Hi, I'm <span class="highlight">Bert</span>, a student <span class="highlight">Software Developer</span> at the <span class="highlight">ROC Technovium</span> in Nijmegen.</p>
-              <p>I love working on websites with <span class="highlight"> VueJS/Javascript</span></p>
+              <p>I love working on websites with <span class="highlight">VueJS/Javascript</span></p>
             </div>
             <div class="image-content">
-              <img src="/src/laptop.jpg" alt="/src/assets/laptop.jpg">
-            </div>
-          </div>
-        </section>
-      </div>
-      <div id="skills">
-        <section class="hero">
-          <div class="hero-content2">
-            <div class="image-content">
-              <img src="/src/skills.webp" alt="/src/assets/laptop.jpg">
-            </div>
-            <div class="text-content">
-              <h1>Skills</h1>
-              <p>My strongest skill is Back-End, working with frameworks/languages like</p>
-              <p><span class="highlight">Outsystems, Java, C, Laravel</span></p>
-            </div>
-          </div>
-        </section>
-      </div>
-      <div class="about-page" id="hobbies">
-        <section class="hero">
-          <div class="hero-content2">
-            <div class="text-content">
-              <h1>Hobbies</h1>
-              <p>In my free time i review and test software</p>
-              <p>Click <a class="highlight" href="https://github.com/BertNK" target="_blank">me</a> to learn more about my skills</p>
-            </div>
-            <div class="image-content">
-              <img src="/src/laptop.jpg" alt="/src/assets/laptop.jpg">
-            </div>
-          </div>
-        </section>
-      </div>
-      <div class="contact-page" id="contact">
-        <section class="hero">
-          <div class="hero-content2">
-            <div class="text-content">
-              <h1>Get in Touch</h1>
-              <p>Want to connect with me?</p>
-              <p>Reach out via <a class="highlight">LinkedIn</a> or <a class="highlight">Email!</a></p>
-              <div class="contact-icons">
-                  <a href="https://www.linkedin.com/in/bert-nikkelen-708283256/" target="_blank"><img src="/src/linkedin.svg"></a>
-                  <a href="mailto:bertnikkelen1@gmail.com?subject=Contact&body=Tekst"><img src="/src/mail.svg"></a>
-                  <a href="https://github.com/BertNK" target="_blank"><img src="/src/github.svg"></a>
+              <div class="retro-window">
+                <div class="retro-titlebar"><div class="retro-dots"><i></i><i></i><i></i></div></div>
+                <img src="/src/laptop.jpg" alt="Laptop on a desk">
               </div>
             </div>
           </div>
         </section>
       </div>
+
+      <div id="skills">
+        <section class="hero">
+          <div class="hero-content2">
+            <div class="image-content">
+              <div class="retro-window">
+                <div class="retro-titlebar"><div class="retro-dots"><i></i><i></i><i></i></div></div>
+                <img src="/src/skills.webp" alt="Skills illustration">
+              </div>
+            </div>
+            <div class="text-content">
+              <p class="eyebrow">03 // Stack</p>
+              <h1>Skills</h1>
+              <p>My strongest skill is Back-End, working with frameworks/languages like</p>
+              <p><span class="highlight">Outsystems, Java, C, C++, Lua, Vue.js, Nuxt.js</span></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="about-page" id="hobbies">
+        <section class="hero">
+          <div class="hero-content2">
+            <div class="text-content">
+              <p class="eyebrow">04 // Off the clock</p>
+              <h1>Hobbies</h1>
+              <p>In my free time I test software and work with <a class="highlight" href="https://chamsyslighting.com/" target="_blank">Chamsys</a></p>
+              <p>Click <a class="highlight" href="https://github.com/BertNK" target="_blank">me</a> to learn more about my skills</p>
+            </div>
+            <div class="image-content">
+              <div class="retro-window">
+                <div class="retro-titlebar"><div class="retro-dots"><i></i><i></i><i></i></div></div>
+                <img src="/src/laptop.jpg" alt="Laptop on a desk">
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="contact-page" id="contact">
+        <section class="hero">
+          <div class="hero-content2">
+            <div class="text-content">
+              <p class="eyebrow">05 // Say hello</p>
+              <h1>Get in Touch</h1>
+              <p>Want to connect with me?</p>
+              <p>Reach out via <a class="highlight" href="https://www.linkedin.com/in/bert-nikkelen-708283256/" target="_blank">LinkedIn</a> or <a class="highlight" href="mailto:bertnikkelen1@gmail.com?subject=Contact&body=Tekst">Email!</a></p>
+              <div class="contact-icons">
+                  <a href="https://www.linkedin.com/in/bert-nikkelen-708283256/" target="_blank"><span class="icon-box"><img src="/src/linkedin.svg" alt="LinkedIn"></span></a>
+                  <a href="mailto:bertnikkelen1@gmail.com?subject=Contact&body=Tekst"><span class="icon-box"><img src="/src/mail.svg" alt="Email"></span></a>
+                  <a href="https://github.com/BertNK" target="_blank"><span class="icon-box"><img src="/src/github.svg" alt="GitHub"></span></a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    <div id="egg-overlay" class="egg-overlay" aria-hidden="true"></div>
+
+    <script src="script.js"></script>
 </body>
 </html>
