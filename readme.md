@@ -1,4 +1,3 @@
-
 <!-- Header -->
 <div align="center">
 
@@ -24,11 +23,9 @@ I'm especially interested in:
 
 - Full-stack development
 - Backend development & databases
-- Frontend development
 - Hardware & technology
+- Automated software application
 - Learning new things through projects
-
-Currently looking for an **afstudeerstage in Software Development**.
 
 ---
 
@@ -38,37 +35,10 @@ Currently looking for an **afstudeerstage in Software Development**.
 
 ### Languages & Frameworks
 
-[![My Skills](https://skillicons.dev/icons?i=cs,dotnet,js,html,css,php,python)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=cs,cpp,dotnet,js,html,css,nuxtjs,vue,php,python,lua,bash)](https://skillicons.dev)
 
 ### Tools & Technologies
 
-[![My Tools](https://skillicons.dev/icons?i=git,github,vscode,visualstudio,mysql,sqlite)](https://skillicons.dev)
-
-</div>
-
----
-
-## Projects
-
-> More projects coming soon.
-
-I'm working on projects that help me learn,
-experiment, and improve my development skills.
-
----
-
-## Connect With Me
-
-<div align="center">
-
-[![Portfolio](https://img.shields.io/badge/Website-4FE0D0?style=for-the-badge&logo=googlechrome&logoColor=0E1418)](https://bertnikkelen.nl)
-
-</div>
-
----
-
-<div align="center">
-
-<sub>Build. Learn. Explore.</sub>
+[![My Tools](https://skillicons.dev/icons?i=git,github,vscode,visualstudio,mysql,sqlite,arduino,linux)](https://skillicons.dev)  
 
 </div>
