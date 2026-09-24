@@ -12,6 +12,11 @@
 </head>
 <body>
 
+    <!-- Seasonal decorations toggle -->
+    <button id="season-toggle" class="theme-toggle season-toggle" aria-label="Seasonal decorations: off">
+      <span class="season-icon">✨</span>
+    </button>
+
     <!-- Theme toggle -->
     <button id="theme-toggle" class="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
       <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><g stroke-width="2"><line x1="12" y1="1.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22.5" y2="12"/><line x1="4.4" y1="4.4" x2="6.8" y2="6.8"/><line x1="17.2" y1="17.2" x2="19.6" y2="19.6"/><line x1="4.4" y1="19.6" x2="6.8" y2="17.2"/><line x1="17.2" y1="6.8" x2="19.6" y2="4.4"/></g></svg>
@@ -121,13 +126,47 @@
               <p>Reach out via <a class="highlight" href="https://www.linkedin.com/in/bert-nikkelen-708283256/" target="_blank">LinkedIn</a> or <a class="highlight" href="mailto:bertnikkelen1@gmail.com?subject=Contact&body=Tekst">Email!</a></p>
               <div class="contact-icons">
                   <a href="https://www.linkedin.com/in/bert-nikkelen-708283256/" target="_blank"><span class="icon-box"><img src="/src/linkedin.svg" alt="LinkedIn"></span></a>
-                  <a href="mailto:bertnikkelen1@gmail.com?subject=Contact&body=Tekst"><span class="icon-box"><img src="/src/mail.svg" alt="Email"></span></a>
+                  <button type="button" class="icon-box-btn" id="mail-open-btn" aria-haspopup="dialog" aria-controls="mail-modal"><span class="icon-box"><img src="/src/mail.svg" alt="Email"></span></button>
                   <a href="https://github.com/BertNK" target="_blank"><span class="icon-box"><img src="/src/github.svg" alt="GitHub"></span></a>
               </div>
             </div>
           </div>
         </section>
       </div>
+
+    <div class="mail-backdrop" id="mail-backdrop" hidden>
+      <div class="mail-panel" role="dialog" aria-modal="true" aria-labelledby="mail-panel-title" id="mail-modal">
+        <div class="mail-panel-bar">
+          <span id="mail-panel-title">new message</span>
+          <button type="button" class="mail-panel-close" id="mail-close-btn" aria-label="Close">×</button>
+        </div>
+        <div class="mail-to-row">
+          <span class="mail-to-label">to:</span>
+          <span class="mail-to-address">bertnikkelen1@gmail.com</span>
+          <button type="button" class="mail-copy-btn" id="mail-copy-btn" aria-label="Copy email address">
+            <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="1"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg>
+            <span class="copy-toast" id="copy-toast">copied</span>
+          </button>
+        </div>
+        <form class="mail-form" id="mail-form">
+          <label class="mail-field">Your name
+            <input type="text" name="name" required>
+          </label>
+          <label class="mail-field">Your email
+            <input type="email" name="email" required>
+          </label>
+          <label class="mail-field">Message
+            <textarea name="message" rows="4" required></textarea>
+          </label>
+          <div class="mail-actions">
+            <button type="submit" class="cta-button">Send</button>
+            <span class="mail-hint">opens your email app</span>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="season-overlay" class="season-overlay" aria-hidden="true"></div>
 
     <div id="egg-overlay" class="egg-overlay" aria-hidden="true"></div>
 

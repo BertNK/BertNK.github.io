@@ -30,6 +30,78 @@
     });
   }
 
+  // seasonal decorations: cycles off -> christmas -> halloween -> off
+  var SEASON_KEY = 'bert-portfolio-season';
+  var SEASONS = ['none', 'christmas', 'halloween'];
+  var seasonBtn = document.getElementById('season-toggle');
+  var seasonIcon = seasonBtn ? seasonBtn.querySelector('.season-icon') : null;
+  var seasonOverlay = document.getElementById('season-overlay');
+
+  function getStoredSeason() {
+    var stored = localStorage.getItem(SEASON_KEY);
+    return SEASONS.indexOf(stored) !== -1 ? stored : 'none';
+  }
+
+  function applySeason(season) {
+    root.setAttribute('data-season', season);
+    if (seasonIcon) {
+      seasonIcon.textContent = season === 'christmas' ? '❄' : season === 'halloween' ? '🎃' : '✨';
+    }
+    if (seasonBtn) {
+      seasonBtn.setAttribute('aria-label', 'Seasonal decorations: ' + (season === 'none' ? 'off' : season));
+    }
+    renderSeason(season);
+  }
+
+  function renderSeason(season) {
+    if (!seasonOverlay) return;
+    seasonOverlay.innerHTML = '';
+
+    if (season === 'christmas') {
+      for (var i = 0; i < 16; i += 1) {
+        var flake = document.createElement('span');
+        flake.className = 'season-flake';
+        flake.textContent = '❄';
+        flake.style.left = (Math.random() * 100) + 'vw';
+        flake.style.fontSize = (10 + Math.random() * 14) + 'px';
+        flake.style.opacity = (0.5 + Math.random() * 0.4).toFixed(2);
+        flake.style.color = 'var(--accent)';
+        flake.style.animationDuration = (7 + Math.random() * 8) + 's';
+        flake.style.animationDelay = (Math.random() * -10) + 's';
+        seasonOverlay.appendChild(flake);
+      }
+    } else if (season === 'halloween') {
+      for (var j = 0; j < 6; j += 1) {
+        var bat = document.createElement('span');
+        bat.className = 'season-bat';
+        bat.textContent = '\ud83e\udd87';
+        bat.style.top = (8 + Math.random() * 55) + 'vh';
+        bat.style.fontSize = (14 + Math.random() * 10) + 'px';
+        bat.style.animationDuration = (9 + Math.random() * 10) + 's';
+        bat.style.animationDelay = (Math.random() * -12) + 's';
+        seasonOverlay.appendChild(bat);
+      }
+      [8, 50, 88].forEach(function (left) {
+        var pumpkin = document.createElement('span');
+        pumpkin.className = 'season-pumpkin';
+        pumpkin.textContent = '\ud83c\udf83';
+        pumpkin.style.left = left + 'vw';
+        seasonOverlay.appendChild(pumpkin);
+      });
+    }
+  }
+
+  applySeason(getStoredSeason());
+
+  if (seasonBtn) {
+    seasonBtn.addEventListener('click', function () {
+      var current = root.getAttribute('data-season') || 'none';
+      var next = SEASONS[(SEASONS.indexOf(current) + 1) % SEASONS.length];
+      applySeason(next);
+      try { localStorage.setItem(SEASON_KEY, next); } catch (e) {}
+    });
+  }
+
   // scroll spy: mark active section in navbar + rail
   var sections = document.querySelectorAll('#home, #about, #skills, #hobbies, #contact');
   var navLinks = document.querySelectorAll('.navbar .nav-links a');
@@ -57,7 +129,95 @@
     sections.forEach(function (section) { observer.observe(section); });
   }
 
-  // easter egg: click name, hero jumps and stomps a critter, +1 pops up
+  // mail modal: opens a form, sends via the visitor's own mail app
+  var EMAIL = 'bertnikkelen1@gmail.com';
+  var mailOpenBtn = document.getElementById('mail-open-btn');
+  var mailCloseBtn = document.getElementById('mail-close-btn');
+  var mailBackdrop = document.getElementById('mail-backdrop');
+  var mailForm = document.getElementById('mail-form');
+  var mailCopyBtn = document.getElementById('mail-copy-btn');
+  var copyToast = document.getElementById('copy-toast');
+
+  function openMail() {
+    if (!mailBackdrop) return;
+    mailBackdrop.hidden = false;
+    requestAnimationFrame(function () {
+      mailBackdrop.classList.add('is-open');
+    });
+    document.addEventListener('keydown', onMailKeydown);
+  }
+
+  function closeMail() {
+    if (!mailBackdrop) return;
+    mailBackdrop.classList.remove('is-open');
+    document.removeEventListener('keydown', onMailKeydown);
+    setTimeout(function () { mailBackdrop.hidden = true; }, 250);
+  }
+
+  function onMailKeydown(e) {
+    if (e.key === 'Escape') closeMail();
+  }
+
+  if (mailOpenBtn) mailOpenBtn.addEventListener('click', openMail);
+  if (mailCloseBtn) mailCloseBtn.addEventListener('click', closeMail);
+  if (mailBackdrop) {
+    mailBackdrop.addEventListener('click', function (e) {
+      if (e.target === mailBackdrop) closeMail();
+    });
+  }
+
+  // builds a mailto link from the form and hands off to the mail app,
+  // since a static site can't send mail itself
+  if (mailForm) {
+    mailForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var data = new FormData(mailForm);
+      var name = (data.get('name') || '').toString();
+      var from = (data.get('email') || '').toString();
+      var message = (data.get('message') || '').toString();
+      var subject = 'Portfolio contact from ' + name;
+      var body = message + '\n\n- ' + name + ' (' + from + ')';
+      var link = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      window.location.href = link;
+      closeMail();
+      mailForm.reset();
+    });
+  }
+
+  // copy button: puts the address on the clipboard, shows a small toast
+  if (mailCopyBtn) {
+    mailCopyBtn.addEventListener('click', function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(EMAIL).then(showCopyToast).catch(fallbackCopy);
+      } else {
+        fallbackCopy();
+      }
+    });
+  }
+
+  function fallbackCopy() {
+    var tmp = document.createElement('textarea');
+    tmp.value = EMAIL;
+    tmp.style.position = 'fixed';
+    tmp.style.opacity = '0';
+    document.body.appendChild(tmp);
+    tmp.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(tmp);
+    showCopyToast();
+  }
+
+  var copyToastTimer = null;
+  function showCopyToast() {
+    if (!copyToast) return;
+    copyToast.classList.add('show');
+    clearTimeout(copyToastTimer);
+    copyToastTimer = setTimeout(function () {
+      copyToast.classList.remove('show');
+    }, 1500);
+  }
+
+  // easter egg: click name, hero shoots 3 aliens above it, +1 each
   var nameEl = document.getElementById('hero-name');
   var overlay = document.getElementById('egg-overlay');
   if (!nameEl || !overlay) return;
@@ -73,52 +233,90 @@
     playing = true;
 
     var rect = nameEl.getBoundingClientRect();
-    var groundY = rect.top - 10;
-    var centerX = rect.left + rect.width / 2;
-    var enemyX = centerX + 18;
-    var heroX = centerX - 18;
+    var baseX = rect.left + rect.width / 2;
+    var mobileLift = window.innerWidth <= 768 ? 35 : 0;
+    var heroY = rect.top - 8 - mobileLift;
+    var gunX = baseX;
+    var gunY = heroY - 24;
 
     var hero = document.createElement('div');
-    hero.className = 'egg-hero';
-    hero.style.left = heroX + 'px';
-    hero.style.top = (groundY - 26) + 'px';
+    hero.className = 'egg-hero egg-appear';
+    hero.style.left = (baseX - 12) + 'px';
+    hero.style.top = (heroY - 24) + 'px';
     hero.innerHTML = heroSpriteSVG();
-
-    var enemy = document.createElement('div');
-    enemy.className = 'egg-enemy';
-    enemy.style.left = enemyX + 'px';
-    enemy.style.top = (groundY - 26) + 'px';
-    enemy.innerHTML = enemySpriteSVG();
-
-    overlay.appendChild(enemy);
     overlay.appendChild(hero);
 
-    var score = null;
+    // left top, middle top, right top - all above the name
+    var spreadX = window.innerWidth <= 768 ? 42 : 55;
+    var spots = [
+      { x: baseX - spreadX, y: heroY - 70 },
+      { x: baseX, y: heroY - 95 },
+      { x: baseX + spreadX, y: heroY - 70 }
+    ];
+    var els = [];
 
-    hero.classList.add('egg-jump');
-    playJump();
+    spots.forEach(function (spot) {
+      var alien = document.createElement('div');
+      alien.className = 'egg-alien egg-appear';
+      alien.style.left = (spot.x - 10) + 'px';
+      alien.style.top = (spot.y - 10) + 'px';
+      alien.innerHTML = alienSpriteSVG();
+      overlay.appendChild(alien);
+      els.push(alien);
+    });
 
-    // jump lands after 0.6s, that's when the stomp happens
-    setTimeout(function () {
-      enemy.classList.add('egg-squish');
-      hero.classList.add('egg-bounce');
-      playStomp();
+    var i = 0;
+    setTimeout(fireNext, 200);
 
-      score = document.createElement('div');
-      score.className = 'egg-score';
-      score.textContent = '+1';
-      score.style.left = enemyX + 'px';
-      score.style.top = (groundY - 26) + 'px';
-      overlay.appendChild(score);
-    }, 600);
+    function fireNext() {
+      if (i >= spots.length) {
+        setTimeout(cleanup, 900);
+        return;
+      }
+      var spot = spots[i];
+      var alien = els[i];
+      shoot(gunX, gunY, spot.x, spot.y, function () {
+        alien.classList.add('egg-hit');
+        playHit();
+        dropScore(spot.x, spot.y);
+      });
+      i += 1;
+      setTimeout(fireNext, 260);
+    }
 
-    // clean up once everything's done animating
-    setTimeout(function () {
+    function cleanup() {
       overlay.removeChild(hero);
-      overlay.removeChild(enemy);
-      if (score) overlay.removeChild(score);
+      els.forEach(function (el) { overlay.removeChild(el); });
+      overlay.querySelectorAll('.egg-score').forEach(function (el) { overlay.removeChild(el); });
       playing = false;
-    }, 1500);
+    }
+  }
+
+  // fires one bullet from (x1,y1) to (x2,y2), calls onHit when it lands
+  function shoot(x1, y1, x2, y2, onHit) {
+    var bullet = document.createElement('div');
+    bullet.className = 'egg-bullet';
+    bullet.style.left = x1 + 'px';
+    bullet.style.top = y1 + 'px';
+    bullet.style.setProperty('--dx', (x2 - x1) + 'px');
+    bullet.style.setProperty('--dy', (y2 - y1) + 'px');
+    overlay.appendChild(bullet);
+    playShoot();
+
+    bullet.classList.add('egg-fire');
+    setTimeout(function () {
+      overlay.removeChild(bullet);
+      onHit();
+    }, 220);
+  }
+
+  function dropScore(x, y) {
+    var score = document.createElement('div');
+    score.className = 'egg-score';
+    score.textContent = '+1';
+    score.style.left = x + 'px';
+    score.style.top = y + 'px';
+    overlay.appendChild(score);
   }
 
   // simple pixel guy, own shapes, not based on any real character
@@ -135,29 +333,32 @@
     );
   }
 
-  // simple pixel critter, own shapes, not based on any real character
-  function enemySpriteSVG() {
+  // simple pixel alien, own shapes, not based on any real character
+  function alienSpriteSVG() {
     return (
       '<svg viewBox="0 0 16 16" shape-rendering="crispEdges">' +
-      '<rect x="4" y="6" width="8" height="6" fill="#8a5a3b"/>' +
-      '<rect x="4" y="12" width="3" height="2" fill="#5c3b24"/>' +
-      '<rect x="9" y="12" width="3" height="2" fill="#5c3b24"/>' +
-      '<rect x="6" y="8" width="1" height="1" fill="#1a1a1a"/>' +
-      '<rect x="9" y="8" width="1" height="1" fill="#1a1a1a"/>' +
+      '<rect x="5" y="2" width="1" height="2" fill="currentColor" style="color:var(--accent)"/>' +
+      '<rect x="10" y="2" width="1" height="2" fill="currentColor" style="color:var(--accent)"/>' +
+      '<rect x="4" y="4" width="8" height="6" fill="currentColor" style="color:var(--accent)"/>' +
+      '<rect x="6" y="6" width="1" height="1" fill="#14181C"/>' +
+      '<rect x="9" y="6" width="1" height="1" fill="#14181C"/>' +
+      '<rect x="3" y="10" width="2" height="2" fill="currentColor" style="color:var(--accent)"/>' +
+      '<rect x="11" y="10" width="2" height="2" fill="currentColor" style="color:var(--accent)"/>' +
+      '<rect x="6" y="10" width="4" height="2" fill="currentColor" style="color:var(--accent)"/>' +
       '</svg>'
     );
   }
 
-  // short jump blip, own notes, square wave, no copyright
-  function playJump() {
-    playNotes([{ f: 700, t: 0, d: 0.12 }]);
+  // short laser blip, own notes, square wave, no copyright
+  function playShoot() {
+    playNotes([{ f: 900, t: 0, d: 0.08, type: 'square' }]);
   }
 
-  // short stomp + ding, own notes, square wave, no copyright
-  function playStomp() {
+  // short hit + ding, own notes, square wave, no copyright
+  function playHit() {
     playNotes([
-      { f: 150, t: 0, d: 0.08, type: 'square' },
-      { f: 1046.5, t: 0.06, d: 0.18, type: 'square' }
+      { f: 200, t: 0, d: 0.06, type: 'square' },
+      { f: 1046.5, t: 0.05, d: 0.15, type: 'square' }
     ]);
   }
 

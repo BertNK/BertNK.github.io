@@ -39,6 +39,21 @@
   padding: 0;
   box-sizing: border-box;
   font-family: var(--font-body);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
 }
 
 html {
@@ -97,6 +112,51 @@ body {
 .theme-toggle .icon-moon { fill: var(--text); stroke: none; display: none; }
 :root[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
 :root[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+.season-toggle {
+  right: 70px;
+}
+.season-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* ---------------------------------------------------
+   Seasonal decorations
+--------------------------------------------------- */
+.season-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 65;
+  overflow: hidden;
+}
+.season-flake {
+  position: absolute;
+  top: -10vh;
+  animation-name: season-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.season-bat {
+  position: absolute;
+  animation-name: season-fly;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.season-pumpkin {
+  position: absolute;
+  bottom: 6px;
+  font-size: 24px;
+  opacity: 0.9;
+}
+@keyframes season-fall {
+  to { transform: translateY(120vh) rotate(360deg); }
+}
+@keyframes season-fly {
+  from { transform: translateX(-10vw); }
+  to { transform: translateX(110vw); }
+}
 
 /* ---------------------------------------------------
    Hero - landing
@@ -203,17 +263,17 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1650px;
+  max-width: 1570px;
   width: 100%;
   gap: 6%;
 }
 .text-content { flex: 1; }
 .text-content h1 {
   font-family: var(--font-display);
-  font-size: 53px;
-  margin-bottom: 25px;
+  font-size: 50px;
+  margin-bottom: 24px;
 }
-.text-content p { font-size: 23px; margin-bottom: 20px; color: var(--text-muted); line-height: 1.65; }
+.text-content p { font-size: 22px; margin-bottom: 19px; color: var(--text-muted); line-height: 1.65; }
 .text-content .highlight { color: var(--accent2); font-weight: 700; }
 
 .image-content { flex: 1; }
@@ -270,8 +330,163 @@ body {
 :root[data-theme="dark"] .contact-icons .icon-box { border-color: var(--accent2); }
 .contact-icons img { display: block; width: 100%; height: 100%; }
 :root[data-theme="dark"] .contact-icons img { filter: invert(1); }
-.contact-icons a:hover .icon-box { transform: translate(-1px, -1px); }
-.contact-icons a:active .icon-box { transform: translate(2px, 2px); }
+.contact-icons a:hover .icon-box,
+.contact-icons .icon-box-btn:hover .icon-box { transform: translate(-1px, -1px); }
+.contact-icons a:active .icon-box,
+.contact-icons .icon-box-btn:active .icon-box { transform: translate(2px, 2px); }
+
+.icon-box-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------
+   Mail modal
+--------------------------------------------------- */
+.mail-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(20, 24, 28, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.mail-backdrop.is-open { opacity: 1; pointer-events: auto; }
+.mail-backdrop[hidden] { display: flex; }
+
+.mail-panel {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  box-shadow: 8px 8px 0 var(--shadow-color);
+  transform: translateY(16px) scale(0.96);
+  opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.mail-backdrop.is-open .mail-panel { transform: translateY(0) scale(1); opacity: 1; }
+
+.mail-panel-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-display);
+  font-size: 13px;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border);
+}
+.mail-panel-close {
+  background: none;
+  border: none;
+  color: var(--on-accent);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  font-family: var(--font-display);
+}
+
+.mail-to-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--border);
+  font-family: var(--font-display);
+  font-size: 13px;
+}
+.mail-to-label { color: var(--text-muted); }
+.mail-to-address {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.mail-copy-btn {
+  position: relative;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.mail-copy-btn:hover { transform: translate(-1px, -1px); }
+.mail-copy-btn:active { transform: translate(1px, 1px); }
+.copy-icon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.6;
+}
+.copy-toast {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--font-display);
+  font-size: 11px;
+  padding: 4px 8px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.copy-toast.show { opacity: 1; }
+
+.mail-form { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.mail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.mail-field input,
+.mail-field textarea {
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  resize: vertical;
+}
+.mail-field input:focus,
+.mail-field textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.mail-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.mail-actions .cta-button { padding: 12px 24px; font-size: 15px; }
+.mail-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+}
 
 /* ---------------------------------------------------
    Mobile gallery rail (hidden on desktop)
@@ -281,7 +496,7 @@ body {
 }
 
 /* ---------------------------------------------------
-   Easter egg: hero stomps a enemy
+   Easter egg: hero shoots 3 aliens above the name
 --------------------------------------------------- */
 .egg-overlay {
   position: fixed;
@@ -290,53 +505,64 @@ body {
   z-index: 70;
 }
 .egg-hero,
-.egg-enemy {
+.egg-alien {
   position: fixed;
-  width: 26px;
-  height: 26px;
-  transform-origin: bottom center;
+  width: 24px;
+  height: 24px;
 }
+.egg-alien { width: 20px; height: 20px; }
 .egg-hero svg,
-.egg-enemy svg { display: block; width: 100%; height: 100%; }
+.egg-alien svg { display: block; width: 100%; height: 100%; }
 
-.egg-hero.egg-jump {
-  animation: egg-jump 0.6s ease-in-out forwards;
+.egg-hero.egg-appear {
+  animation: egg-pop-in 0.18s ease-out both;
 }
-.egg-hero.egg-bounce {
-  animation: egg-bounce 0.35s ease-out forwards;
+.egg-alien.egg-appear {
+  animation: egg-pop-in 0.18s ease-out both;
 }
-.egg-enemy.egg-squish {
-  animation: egg-squish 0.2s ease-in forwards;
+.egg-alien.egg-hit {
+  animation: egg-alien-hit 0.25s ease-in forwards;
 }
+
+.egg-bullet {
+  position: fixed;
+  width: 4px;
+  height: 10px;
+  background: var(--accent2);
+  border-radius: 1px;
+}
+.egg-bullet.egg-fire {
+  animation: egg-bullet-fly 0.22s linear forwards;
+}
+
 .egg-score {
   position: fixed;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 16px;
+  font-size: 15px;
   color: var(--accent2);
   transform: translate(-50%, 0);
   opacity: 0;
-  animation: egg-score-pop 0.9s ease-out forwards;
+  animation: egg-score-pop 0.8s ease-out forwards;
 }
 
-@keyframes egg-jump {
-  0% { transform: translate(0, 0); }
-  50% { transform: translate(18px, -32px); }
-  100% { transform: translate(36px, 0); }
+@keyframes egg-pop-in {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
-@keyframes egg-bounce {
-  0% { transform: translate(36px, 0); }
-  40% { transform: translate(36px, -10px); }
-  100% { transform: translate(36px, 0); }
+@keyframes egg-alien-hit {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
 }
-@keyframes egg-squish {
-  0% { transform: scaleY(1); opacity: 1; }
-  100% { transform: scaleY(0.15); opacity: 0; }
+@keyframes egg-bullet-fly {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)); opacity: 1; }
 }
 @keyframes egg-score-pop {
   0% { opacity: 0; transform: translate(-50%, 0); }
   20% { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%, -28px); }
+  100% { opacity: 0; transform: translate(-50%, -26px); }
 }
 
 /* ---------------------------------------------------
@@ -375,7 +601,10 @@ body {
     text-decoration: none;
     color: var(--text-muted);
     font-family: var(--font-display);
-    padding: 4px 8px;
+    padding: 12px 14px;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
   }
   .rail-index {
     font-size: 11px;
@@ -415,9 +644,10 @@ body {
   #contact .hero { padding-bottom: 96px; }
 
   .theme-toggle { top: 14px; right: 14px; width: 38px; height: 38px; }
+  .season-toggle { right: 60px; }
 }
 
 @media only screen and (max-width: 420px) {
-  .rail-item a { padding: 4px 5px; }
+  .rail-item a { padding: 10px 8px; }
   .hero h1 { font-size: 26px; }
 }
