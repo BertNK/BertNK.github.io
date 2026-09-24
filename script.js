@@ -287,14 +287,6 @@
   var winZ = 20;
   var dragState = null;
 
-  var PROJECTS_HTML =
-    '<div class="win98-projects">' +
-    '<a href="https://github.com/BertNK/BertNK.github.io" target="_blank" rel="noopener"><span class="win98-icon-art win98-icon-computer"></span><span><strong>BertNK.github.io</strong><br>This portfolio</span></a>' +
-    '<a href="https://github.com/BertNK/DogPal" target="_blank" rel="noopener"><span class="win98-icon-art win98-icon-game"></span><span><strong>DogPal</strong><br>Focus extension where you earn treats for your pal</span></a>' +
-    '<a href="https://github.com/BertNK/Design-Patterns" target="_blank" rel="noopener"><span class="win98-icon-art win98-icon-folder"></span><span><strong>Design-Patterns</strong><br>Code experiments</span></a>' +
-    '<a href="https://github.com/BertNK" target="_blank" rel="noopener"><span class="win98-icon-art win98-icon-network"></span><span><strong>GitHub profile</strong><br>github.com/BertNK</span></a>' +
-    '</div>';
-
   function sourceHtml(selector) {
     var node = document.querySelector(selector);
     if (!node) return '';
@@ -304,7 +296,6 @@
   }
 
   function windowHtml(id) {
-    if (id === 'projects') return PROJECTS_HTML;
     if (id === 'home') return sourceHtml('#home .hero-content');
     if (id === 'about') return sourceHtml('#about .hero-content2');
     if (id === 'skills') return sourceHtml('#skills .hero-content2');
@@ -319,7 +310,6 @@
     skills: 'Skills',
     hobbies: 'Hobbies',
     contact: 'Get in Touch',
-    projects: 'My Projects'
   };
 
   function applyOs(mode) {
