@@ -34,7 +34,6 @@
   var SEASON_KEY = 'bert-portfolio-season';
   var SEASONS = ['none', 'christmas', 'halloween'];
   var seasonBtn = document.getElementById('season-toggle');
-  var seasonIcon = seasonBtn ? seasonBtn.querySelector('.season-icon') : null;
   var seasonOverlay = document.getElementById('season-overlay');
 
   function getStoredSeason() {
@@ -44,50 +43,108 @@
 
   function applySeason(season) {
     root.setAttribute('data-season', season);
-    if (seasonIcon) {
-      seasonIcon.textContent = season === 'christmas' ? '❄' : season === 'halloween' ? '🎃' : '✨';
-    }
     if (seasonBtn) {
       seasonBtn.setAttribute('aria-label', 'Seasonal decorations: ' + (season === 'none' ? 'off' : season));
     }
     renderSeason(season);
   }
 
+  function cobwebSVG() {
+    return (
+      '<svg viewBox="0 0 200 200" fill="none" stroke="rgba(236,236,236,0.95)" stroke-width="1.15">' +
+      '<path d="M0 0h200M0 0v200"/>' +
+      '<path d="M0 0l190 36M0 0l150 78M0 0l96 128M0 0l42 176"/>' +
+      '<path d="M18 0q12 18 0 18M50 0q28 50 0 50M86 0q48 86 0 86M124 0q62 124 0 124M164 0q34 164 0 164"/>' +
+      '</svg>'
+    );
+  }
+
+  function pumpkinSVG() {
+    return (
+      '<svg viewBox="0 0 40 36" aria-hidden="true">' +
+      '<path d="M18 8c0-4 4-7 6-7 0 3-1 6-3 8" fill="#3d7a32"/>' +
+      '<ellipse cx="20" cy="22" rx="16" ry="12" fill="#e07020"/>' +
+      '<ellipse cx="12" cy="22" rx="7" ry="11" fill="#f08a38"/>' +
+      '<ellipse cx="28" cy="22" rx="7" ry="11" fill="#c75a12"/>' +
+      '<ellipse cx="20" cy="22" rx="6" ry="11" fill="#ff9a3c"/>' +
+      '<path d="M13 20c1.5 1 3 1.2 4 0M23 20c1.5 1 3 1.2 4 0" stroke="#4a2208" fill="none" stroke-width="1.2"/>' +
+      '<path d="M17 25c2 2 4 2 6 0" stroke="#4a2208" fill="none" stroke-width="1.2"/>' +
+      '</svg>'
+    );
+  }
+
+  function batSVG() {
+    return (
+      '<svg viewBox="0 0 28 14" aria-hidden="true">' +
+      '<path fill="#1a1210" d="M14 6c-1 0-2 2-2 3h4c0-1-1-3-2-3zM2 7c4-1 7 2 9 3-3 2-7 3-11 1 2-1 3-3 2-4zm24 0c-4-1-7 2-9 3 3 2 7 3 11 1-2-1-3-3-2-4z"/>' +
+      '</svg>'
+    );
+  }
+
+  function decorateFrames(season) {
+    document.querySelectorAll('.frame-deco').forEach(function (el) { el.remove(); });
+    if (season !== 'halloween' && season !== 'christmas') return;
+    document.querySelectorAll('.retro-window').forEach(function (win) {
+      if (season === 'halloween') {
+        var left = document.createElement('div');
+        left.className = 'frame-deco frame-pumpkin frame-pumpkin-left';
+        left.innerHTML = pumpkinSVG();
+        var right = document.createElement('div');
+        right.className = 'frame-deco frame-pumpkin frame-pumpkin-right';
+        right.innerHTML = pumpkinSVG();
+        win.appendChild(left);
+        win.appendChild(right);
+      } else {
+        var lights = document.createElement('div');
+        lights.className = 'frame-deco frame-lights';
+        lights.innerHTML = '<span class="wire"></span>';
+        for (var i = 0; i < 11; i += 1) {
+          var bulb = document.createElement('span');
+          bulb.className = 'bulb';
+          lights.appendChild(bulb);
+        }
+        win.appendChild(lights);
+      }
+    });
+  }
+
   function renderSeason(season) {
     if (!seasonOverlay) return;
     seasonOverlay.innerHTML = '';
+    decorateFrames(season);
 
     if (season === 'christmas') {
-      for (var i = 0; i < 16; i += 1) {
+      for (var i = 0; i < 42; i += 1) {
         var flake = document.createElement('span');
-        flake.className = 'season-flake';
-        flake.textContent = '❄';
+        flake.className = 'season-flake' + (i % 3 === 0 ? ' crystal' : '');
         flake.style.left = (Math.random() * 100) + 'vw';
-        flake.style.fontSize = (10 + Math.random() * 14) + 'px';
-        flake.style.opacity = (0.5 + Math.random() * 0.4).toFixed(2);
-        flake.style.color = 'var(--accent)';
-        flake.style.animationDuration = (7 + Math.random() * 8) + 's';
-        flake.style.animationDelay = (Math.random() * -10) + 's';
+        var size = 4 + Math.random() * 7;
+        flake.style.width = size + 'px';
+        flake.style.height = size + 'px';
+        flake.style.opacity = (0.45 + Math.random() * 0.5).toFixed(2);
+        flake.style.animationDuration = (8 + Math.random() * 10) + 's';
+        flake.style.animationDelay = (Math.random() * -14) + 's';
         seasonOverlay.appendChild(flake);
       }
     } else if (season === 'halloween') {
-      for (var j = 0; j < 6; j += 1) {
+      var layer = document.createElement('div');
+      layer.className = 'season-web-layer';
+      seasonOverlay.appendChild(layer);
+      ['tl', 'tr', 'bl', 'br'].forEach(function (corner) {
+        var web = document.createElement('div');
+        web.className = 'season-web season-web-' + corner;
+        web.innerHTML = cobwebSVG();
+        seasonOverlay.appendChild(web);
+      });
+      for (var j = 0; j < 5; j += 1) {
         var bat = document.createElement('span');
         bat.className = 'season-bat';
-        bat.textContent = '\ud83e\udd87';
+        bat.innerHTML = batSVG();
         bat.style.top = (8 + Math.random() * 55) + 'vh';
-        bat.style.fontSize = (14 + Math.random() * 10) + 'px';
         bat.style.animationDuration = (9 + Math.random() * 10) + 's';
         bat.style.animationDelay = (Math.random() * -12) + 's';
         seasonOverlay.appendChild(bat);
       }
-      [8, 50, 88].forEach(function (left) {
-        var pumpkin = document.createElement('span');
-        pumpkin.className = 'season-pumpkin';
-        pumpkin.textContent = '\ud83c\udf83';
-        pumpkin.style.left = left + 'vw';
-        seasonOverlay.appendChild(pumpkin);
-      });
     }
   }
 
@@ -215,6 +272,227 @@
     copyToastTimer = setTimeout(function () {
       copyToast.classList.remove('show');
     }, 1500);
+  }
+
+  // windows 98 desktop: flag button swaps the page into a retro PC shell
+  var OS_KEY = 'bert-portfolio-os';
+  var osBtn = document.getElementById('os-toggle');
+  var desktop = document.getElementById('win98-desktop');
+  var startBtn = document.getElementById('win98-start');
+  var startMenu = document.getElementById('win98-start-menu');
+  var windowsLayer = document.getElementById('win98-windows');
+  var tasksBar = document.getElementById('win98-tasks');
+  var clockEl = document.getElementById('win98-clock');
+  var openWindows = {};
+  var winZ = 20;
+  var dragState = null;
+
+  var PROJECTS_HTML =
+    '<div class="win98-projects">' +
+    '<a href="https://github.com/BertNK/BertNK.github.io" target="_blank" rel="noopener"><span class="win98-icon-art win98-icon-computer"></span><span><strong>BertNK.github.io</strong><br>This portfolio</span></a>' +
+    '<a href="https://github.com/BertNK/DogPal" target="_blank" rel="noopener"><span class="win98-icon-art win98-icon-game"></span><span><strong>DogPal</strong><br>Focus extension where you earn treats for your pal</span></a>' +
+    '<a href="https://github.com/BertNK/Design-Patterns" target="_blank" rel="noopener"><span class="win98-icon-art win98-icon-folder"></span><span><strong>Design-Patterns</strong><br>Code experiments</span></a>' +
+    '<a href="https://github.com/BertNK" target="_blank" rel="noopener"><span class="win98-icon-art win98-icon-network"></span><span><strong>GitHub profile</strong><br>github.com/BertNK</span></a>' +
+    '</div>';
+
+  function sourceHtml(selector) {
+    var node = document.querySelector(selector);
+    if (!node) return '';
+    var clone = node.cloneNode(true);
+    clone.querySelectorAll('[id]').forEach(function (el) { el.removeAttribute('id'); });
+    return clone.outerHTML;
+  }
+
+  function windowHtml(id) {
+    if (id === 'projects') return PROJECTS_HTML;
+    if (id === 'home') return sourceHtml('#home .hero-content');
+    if (id === 'about') return sourceHtml('#about .hero-content2');
+    if (id === 'skills') return sourceHtml('#skills .hero-content2');
+    if (id === 'hobbies') return sourceHtml('#hobbies .hero-content2');
+    if (id === 'contact') return sourceHtml('#contact .hero-content2');
+    return '';
+  }
+
+  var WINDOW_TITLES = {
+    home: 'My Computer',
+    about: 'About Me',
+    skills: 'Skills',
+    hobbies: 'Hobbies',
+    contact: 'Get in Touch',
+    projects: 'My Projects'
+  };
+
+  function applyOs(mode) {
+    root.setAttribute('data-os', mode === 'win98' ? 'win98' : 'site');
+    if (desktop) desktop.hidden = mode !== 'win98';
+    if (osBtn) {
+      osBtn.setAttribute('aria-pressed', String(mode === 'win98'));
+      osBtn.setAttribute('aria-label', mode === 'win98' ? 'Exit Windows desktop' : 'Enter Windows desktop');
+    }
+    if (mode !== 'win98') closeStartMenu();
+  }
+
+  function getStoredOs() {
+    return localStorage.getItem(OS_KEY) === 'win98' ? 'win98' : 'site';
+  }
+
+  function closeStartMenu() {
+    if (!startMenu || !startBtn) return;
+    startMenu.hidden = true;
+    startBtn.classList.remove('is-open');
+    startBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleStartMenu() {
+    if (!startMenu || !startBtn) return;
+    var open = startMenu.hidden;
+    startMenu.hidden = !open;
+    startBtn.classList.toggle('is-open', open);
+    startBtn.setAttribute('aria-expanded', String(open));
+  }
+
+  function focusWindow(id) {
+    var entry = openWindows[id];
+    if (!entry) return;
+    winZ += 1;
+    entry.el.style.zIndex = String(winZ);
+    Object.keys(openWindows).forEach(function (key) {
+      openWindows[key].task.classList.toggle('is-active', key === id);
+    });
+  }
+
+  function closeWindow(id) {
+    var entry = openWindows[id];
+    if (!entry) return;
+    entry.el.remove();
+    entry.task.remove();
+    delete openWindows[id];
+  }
+
+  function openWindow(id) {
+    if (!windowsLayer || !WINDOW_TITLES[id]) return;
+    if (openWindows[id]) {
+      focusWindow(id);
+      closeStartMenu();
+      return;
+    }
+    var count = Object.keys(openWindows).length;
+    var win = document.createElement('div');
+    win.className = 'win98-window';
+    win.style.left = (48 + count * 28) + 'px';
+    win.style.top = (36 + count * 24) + 'px';
+    win.innerHTML =
+      '<div class="win98-titlebar"><span>' + WINDOW_TITLES[id] + '</span><div class="win98-chrome">' +
+      '<button type="button" data-act="min" aria-label="Minimize">_</button>' +
+      '<button type="button" data-act="max" aria-label="Maximize">□</button>' +
+      '<button type="button" data-act="close" aria-label="Close">×</button>' +
+      '</div></div><div class="win98-body">' + windowHtml(id) + '</div>';
+    windowsLayer.appendChild(win);
+
+    var task = document.createElement('button');
+    task.type = 'button';
+    task.className = 'win98-task';
+    task.textContent = WINDOW_TITLES[id];
+    if (tasksBar) tasksBar.appendChild(task);
+
+    openWindows[id] = { el: win, task: task };
+    decorateFrames(root.getAttribute('data-season') || 'none');
+    focusWindow(id);
+    closeStartMenu();
+
+    win.querySelectorAll('.icon-box-btn').forEach(function (b) {
+      b.addEventListener('click', openMail);
+    });
+
+    win.addEventListener('mousedown', function () { focusWindow(id); });
+    task.addEventListener('click', function () {
+      if (win.style.display === 'none') {
+        win.style.display = '';
+        focusWindow(id);
+      } else if (task.classList.contains('is-active')) {
+        win.style.display = 'none';
+        task.classList.remove('is-active');
+      } else {
+        win.style.display = '';
+        focusWindow(id);
+      }
+    });
+
+    win.querySelectorAll('.win98-chrome button').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var act = btn.getAttribute('data-act');
+        if (act === 'close') closeWindow(id);
+        if (act === 'min') {
+          win.style.display = 'none';
+          task.classList.remove('is-active');
+        }
+        if (act === 'max') win.classList.toggle('is-max');
+      });
+    });
+
+    var bar = win.querySelector('.win98-titlebar');
+    bar.addEventListener('mousedown', function (e) {
+      if (e.target.closest('.win98-chrome')) return;
+      if (win.classList.contains('is-max')) return;
+      dragState = {
+        el: win,
+        x: e.clientX - win.offsetLeft,
+        y: e.clientY - win.offsetTop
+      };
+    });
+  }
+
+  document.addEventListener('mousemove', function (e) {
+    if (!dragState) return;
+    dragState.el.style.left = Math.max(0, e.clientX - dragState.x) + 'px';
+    dragState.el.style.top = Math.max(0, e.clientY - dragState.y) + 'px';
+  });
+  document.addEventListener('mouseup', function () { dragState = null; });
+
+  function tickClock() {
+    if (!clockEl) return;
+    var now = new Date();
+    var h = now.getHours();
+    var m = now.getMinutes();
+    var suffix = h >= 12 ? 'PM' : 'AM';
+    var hour = h % 12 || 12;
+    clockEl.textContent = hour + ':' + (m < 10 ? '0' : '') + m + ' ' + suffix;
+  }
+
+  applyOs(getStoredOs());
+  tickClock();
+  setInterval(tickClock, 15000);
+
+  if (osBtn) {
+    osBtn.addEventListener('click', function () {
+      var next = root.getAttribute('data-os') === 'win98' ? 'site' : 'win98';
+      applyOs(next);
+      try { localStorage.setItem(OS_KEY, next); } catch (e) {}
+    });
+  }
+  if (startBtn) startBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    toggleStartMenu();
+  });
+  document.addEventListener('click', function (e) {
+    if (!startMenu || startMenu.hidden) return;
+    if (startMenu.contains(e.target) || (startBtn && startBtn.contains(e.target))) return;
+    closeStartMenu();
+  });
+  document.querySelectorAll('#win98-icons [data-window], #win98-start-menu [data-window]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      openWindow(el.getAttribute('data-window'));
+    });
+  });
+  var winMail = document.getElementById('win98-mail-icon');
+  if (winMail) winMail.addEventListener('click', function () { openMail(); });
+  var exitBtn = document.getElementById('win98-exit');
+  if (exitBtn) {
+    exitBtn.addEventListener('click', function () {
+      applyOs('site');
+      try { localStorage.setItem(OS_KEY, 'site'); } catch (e) {}
+    });
   }
 
   // easter egg: click name, hero shoots 3 aliens above it, +1 each
