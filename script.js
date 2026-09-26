@@ -49,9 +49,10 @@
     renderSeason(season);
   }
 
+  // cobweb strokes use currentColor so CSS can recolor per theme
   function cobwebSVG() {
     return (
-      '<svg viewBox="0 0 200 200" fill="none" stroke="rgba(236,236,236,0.95)" stroke-width="1.15">' +
+      '<svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="1.15">' +
       '<path d="M0 0h200M0 0v200"/>' +
       '<path d="M0 0l190 36M0 0l150 78M0 0l96 128M0 0l42 176"/>' +
       '<path d="M18 0q12 18 0 18M50 0q28 50 0 50M86 0q48 86 0 86M124 0q62 124 0 124M164 0q34 164 0 164"/>' +
@@ -73,10 +74,11 @@
     );
   }
 
+  // bat fill uses currentColor so CSS can recolor per theme
   function batSVG() {
     return (
       '<svg viewBox="0 0 28 14" aria-hidden="true">' +
-      '<path fill="#1a1210" d="M14 6c-1 0-2 2-2 3h4c0-1-1-3-2-3zM2 7c4-1 7 2 9 3-3 2-7 3-11 1 2-1 3-3 2-4zm24 0c-4-1-7 2-9 3 3 2 7 3 11 1-2-1-3-3-2-4z"/>' +
+      '<path fill="currentColor" d="M14 6c-1 0-2 2-2 3h4c0-1-1-3-2-3zM2 7c4-1 7 2 9 3-3 2-7 3-11 1 2-1 3-3 2-4zm24 0c-4-1-7 2-9 3 3 2 7 3 11 1-2-1-3-3-2-4z"/>' +
       '</svg>'
     );
   }
@@ -159,7 +161,7 @@
     });
   }
 
-  // scroll spy: mark active section in navbar + rail
+  // scroll spy: mark active section in nav + rail
   var sections = document.querySelectorAll('#home, #about, #skills, #hobbies, #contact');
   var navLinks = document.querySelectorAll('.navbar .nav-links a');
   var railItems = document.querySelectorAll('.rail-item');
@@ -274,214 +276,60 @@
     }, 1500);
   }
 
-  // windows 98 desktop: flag button swaps the page into a retro PC shell
-  var OS_KEY = 'bert-portfolio-os';
-  var osBtn = document.getElementById('os-toggle');
-  var desktop = document.getElementById('win98-desktop');
-  var startBtn = document.getElementById('win98-start');
-  var startMenu = document.getElementById('win98-start-menu');
-  var windowsLayer = document.getElementById('win98-windows');
-  var tasksBar = document.getElementById('win98-tasks');
-  var clockEl = document.getElementById('win98-clock');
-  var openWindows = {};
-  var winZ = 20;
-  var dragState = null;
+  // confirm popup: linkedin/github links open only after a heads-up
+  var confirmBackdrop = document.getElementById('confirm-backdrop');
+  var confirmMessage = document.getElementById('confirm-message');
+  var confirmContinueBtn = document.getElementById('confirm-continue-btn');
+  var confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+  var confirmCloseBtn = document.getElementById('confirm-close-btn');
+  var pendingUrl = null;
 
-  function sourceHtml(selector) {
-    var node = document.querySelector(selector);
-    if (!node) return '';
-    var clone = node.cloneNode(true);
-    clone.querySelectorAll('[id]').forEach(function (el) { el.removeAttribute('id'); });
-    return clone.outerHTML;
+  function openConfirm(url, label) {
+    if (!confirmBackdrop) return;
+    pendingUrl = url;
+    if (confirmMessage) confirmMessage.textContent = 'This will open a new page to ' + label + '.';
+    confirmBackdrop.hidden = false;
+    requestAnimationFrame(function () { confirmBackdrop.classList.add('is-open'); });
+    document.addEventListener('keydown', onConfirmKeydown);
   }
 
-  function windowHtml(id) {
-    if (id === 'home') return sourceHtml('#home .hero-content');
-    if (id === 'about') return sourceHtml('#about .hero-content2');
-    if (id === 'skills') return sourceHtml('#skills .hero-content2');
-    if (id === 'hobbies') return sourceHtml('#hobbies .hero-content2');
-    if (id === 'contact') return sourceHtml('#contact .hero-content2');
-    return '';
+  function closeConfirm() {
+    if (!confirmBackdrop) return;
+    confirmBackdrop.classList.remove('is-open');
+    document.removeEventListener('keydown', onConfirmKeydown);
+    setTimeout(function () {
+      confirmBackdrop.hidden = true;
+      pendingUrl = null;
+    }, 250);
   }
 
-  var WINDOW_TITLES = {
-    home: 'My Computer',
-    about: 'About Me',
-    skills: 'Skills',
-    hobbies: 'Hobbies',
-    contact: 'Get in Touch',
-  };
-
-  function applyOs(mode) {
-    root.setAttribute('data-os', mode === 'win98' ? 'win98' : 'site');
-    if (desktop) desktop.hidden = mode !== 'win98';
-    if (osBtn) {
-      osBtn.setAttribute('aria-pressed', String(mode === 'win98'));
-      osBtn.setAttribute('aria-label', mode === 'win98' ? 'Exit Windows desktop' : 'Enter Windows desktop');
-    }
-    if (mode !== 'win98') closeStartMenu();
+  function onConfirmKeydown(e) {
+    if (e.key === 'Escape') closeConfirm();
   }
 
-  function getStoredOs() {
-    return localStorage.getItem(OS_KEY) === 'win98' ? 'win98' : 'site';
-  }
-
-  function closeStartMenu() {
-    if (!startMenu || !startBtn) return;
-    startMenu.hidden = true;
-    startBtn.classList.remove('is-open');
-    startBtn.setAttribute('aria-expanded', 'false');
-  }
-
-  function toggleStartMenu() {
-    if (!startMenu || !startBtn) return;
-    var open = startMenu.hidden;
-    startMenu.hidden = !open;
-    startBtn.classList.toggle('is-open', open);
-    startBtn.setAttribute('aria-expanded', String(open));
-  }
-
-  function focusWindow(id) {
-    var entry = openWindows[id];
-    if (!entry) return;
-    winZ += 1;
-    entry.el.style.zIndex = String(winZ);
-    Object.keys(openWindows).forEach(function (key) {
-      openWindows[key].task.classList.toggle('is-active', key === id);
-    });
-  }
-
-  function closeWindow(id) {
-    var entry = openWindows[id];
-    if (!entry) return;
-    entry.el.remove();
-    entry.task.remove();
-    delete openWindows[id];
-  }
-
-  function openWindow(id) {
-    if (!windowsLayer || !WINDOW_TITLES[id]) return;
-    if (openWindows[id]) {
-      focusWindow(id);
-      closeStartMenu();
-      return;
-    }
-    var count = Object.keys(openWindows).length;
-    var win = document.createElement('div');
-    win.className = 'win98-window';
-    win.style.left = (48 + count * 28) + 'px';
-    win.style.top = (36 + count * 24) + 'px';
-    win.innerHTML =
-      '<div class="win98-titlebar"><span>' + WINDOW_TITLES[id] + '</span><div class="win98-chrome">' +
-      '<button type="button" data-act="min" aria-label="Minimize">_</button>' +
-      '<button type="button" data-act="max" aria-label="Maximize">□</button>' +
-      '<button type="button" data-act="close" aria-label="Close">×</button>' +
-      '</div></div><div class="win98-body">' + windowHtml(id) + '</div>';
-    windowsLayer.appendChild(win);
-
-    var task = document.createElement('button');
-    task.type = 'button';
-    task.className = 'win98-task';
-    task.textContent = WINDOW_TITLES[id];
-    if (tasksBar) tasksBar.appendChild(task);
-
-    openWindows[id] = { el: win, task: task };
-    decorateFrames(root.getAttribute('data-season') || 'none');
-    focusWindow(id);
-    closeStartMenu();
-
-    win.querySelectorAll('.icon-box-btn').forEach(function (b) {
-      b.addEventListener('click', openMail);
-    });
-
-    win.addEventListener('mousedown', function () { focusWindow(id); });
-    task.addEventListener('click', function () {
-      if (win.style.display === 'none') {
-        win.style.display = '';
-        focusWindow(id);
-      } else if (task.classList.contains('is-active')) {
-        win.style.display = 'none';
-        task.classList.remove('is-active');
-      } else {
-        win.style.display = '';
-        focusWindow(id);
-      }
-    });
-
-    win.querySelectorAll('.win98-chrome button').forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var act = btn.getAttribute('data-act');
-        if (act === 'close') closeWindow(id);
-        if (act === 'min') {
-          win.style.display = 'none';
-          task.classList.remove('is-active');
-        }
-        if (act === 'max') win.classList.toggle('is-max');
-      });
-    });
-
-    var bar = win.querySelector('.win98-titlebar');
-    bar.addEventListener('mousedown', function (e) {
-      if (e.target.closest('.win98-chrome')) return;
-      if (win.classList.contains('is-max')) return;
-      dragState = {
-        el: win,
-        x: e.clientX - win.offsetLeft,
-        y: e.clientY - win.offsetTop
-      };
-    });
-  }
-
-  document.addEventListener('mousemove', function (e) {
-    if (!dragState) return;
-    dragState.el.style.left = Math.max(0, e.clientX - dragState.x) + 'px';
-    dragState.el.style.top = Math.max(0, e.clientY - dragState.y) + 'px';
-  });
-  document.addEventListener('mouseup', function () { dragState = null; });
-
-  function tickClock() {
-    if (!clockEl) return;
-    var now = new Date();
-    var h = now.getHours();
-    var m = now.getMinutes();
-    var suffix = h >= 12 ? 'PM' : 'AM';
-    var hour = h % 12 || 12;
-    clockEl.textContent = hour + ':' + (m < 10 ? '0' : '') + m + ' ' + suffix;
-  }
-
-  applyOs(getStoredOs());
-  tickClock();
-  setInterval(tickClock, 15000);
-
-  if (osBtn) {
-    osBtn.addEventListener('click', function () {
-      var next = root.getAttribute('data-os') === 'win98' ? 'site' : 'win98';
-      applyOs(next);
-      try { localStorage.setItem(OS_KEY, next); } catch (e) {}
-    });
-  }
-  if (startBtn) startBtn.addEventListener('click', function (e) {
-    e.stopPropagation();
-    toggleStartMenu();
-  });
-  document.addEventListener('click', function (e) {
-    if (!startMenu || startMenu.hidden) return;
-    if (startMenu.contains(e.target) || (startBtn && startBtn.contains(e.target))) return;
-    closeStartMenu();
-  });
-  document.querySelectorAll('#win98-icons [data-window], #win98-start-menu [data-window]').forEach(function (el) {
-    el.addEventListener('click', function () {
-      openWindow(el.getAttribute('data-window'));
+  document.querySelectorAll('a[target="_blank"]').forEach(function (link) {
+    var href = link.getAttribute('href') || '';
+    var label = null;
+    if (href.indexOf('linkedin.com') !== -1) label = 'LinkedIn';
+    else if (href.indexOf('github.com') !== -1) label = 'GitHub';
+    if (!label) return;
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      openConfirm(href, label);
     });
   });
-  var winMail = document.getElementById('win98-mail-icon');
-  if (winMail) winMail.addEventListener('click', function () { openMail(); });
-  var exitBtn = document.getElementById('win98-exit');
-  if (exitBtn) {
-    exitBtn.addEventListener('click', function () {
-      applyOs('site');
-      try { localStorage.setItem(OS_KEY, 'site'); } catch (e) {}
+
+  if (confirmContinueBtn) {
+    confirmContinueBtn.addEventListener('click', function () {
+      if (pendingUrl) window.open(pendingUrl, '_blank', 'noopener');
+      closeConfirm();
+    });
+  }
+  if (confirmCancelBtn) confirmCancelBtn.addEventListener('click', closeConfirm);
+  if (confirmCloseBtn) confirmCloseBtn.addEventListener('click', closeConfirm);
+  if (confirmBackdrop) {
+    confirmBackdrop.addEventListener('click', function (e) {
+      if (e.target === confirmBackdrop) closeConfirm();
     });
   }
 
@@ -538,15 +386,20 @@
 
     function fireNext() {
       if (i >= spots.length) {
-        setTimeout(cleanup, 900);
+        setTimeout(cleanup, 1100);
         return;
       }
-      var spot = spots[i];
-      var alien = els[i];
+      var index = i;
+      var spot = spots[index];
+      var alien = els[index];
       shoot(gunX, gunY, spot.x, spot.y, function () {
         alien.classList.add('egg-hit');
         playHit();
         dropScore(spot.x, spot.y);
+        if (index === spots.length - 1) {
+          playLevelUp();
+          dropLevelUp(baseX, heroY - 24);
+        }
       });
       i += 1;
       setTimeout(fireNext, 260);
@@ -556,6 +409,7 @@
       overlay.removeChild(hero);
       els.forEach(function (el) { overlay.removeChild(el); });
       overlay.querySelectorAll('.egg-score').forEach(function (el) { overlay.removeChild(el); });
+      overlay.querySelectorAll('.egg-levelup').forEach(function (el) { overlay.removeChild(el); });
       playing = false;
     }
   }
@@ -585,6 +439,15 @@
     score.style.left = x + 'px';
     score.style.top = y + 'px';
     overlay.appendChild(score);
+  }
+
+  function dropLevelUp(x, y) {
+    var el = document.createElement('div');
+    el.className = 'egg-levelup';
+    el.textContent = 'LEVEL UP +1';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    overlay.appendChild(el);
   }
 
   // simple pixel guy, own shapes, not based on any real character
@@ -617,16 +480,47 @@
     );
   }
 
-  // short laser blip, own notes, square wave, no copyright
+  // soft laser zap: a quick downward pitch sweep on a sine wave,
+  // gentler on the ears than a flat square-wave beep
   function playShoot() {
-    playNotes([{ f: 900, t: 0, d: 0.08, type: 'square' }]);
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      var ctx = new Ctx();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      var t0 = ctx.currentTime;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1100, t0);
+      osc.frequency.exponentialRampToValueAtTime(420, t0 + 0.12);
+      gain.gain.setValueAtTime(0, t0);
+      gain.gain.linearRampToValueAtTime(0.09, t0 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.14);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.16);
+      setTimeout(function () { ctx.close(); }, 400);
+    } catch (e) {
+      // no web audio, animation still runs without sound
+    }
   }
 
-  // short hit + ding, own notes, square wave, no copyright
+  // hit + ding, triangle/sine instead of square, smoother
   function playHit() {
     playNotes([
-      { f: 200, t: 0, d: 0.06, type: 'square' },
-      { f: 1046.5, t: 0.05, d: 0.15, type: 'square' }
+      { f: 180, t: 0, d: 0.09, type: 'triangle' },
+      { f: 880, t: 0.05, d: 0.16, type: 'sine' }
+    ]);
+  }
+
+  // level-up fanfare once all 3 aliens are down, own notes, no copyright
+  function playLevelUp() {
+    playNotes([
+      { f: 523.25, t: 0, d: 0.09, type: 'triangle' },
+      { f: 659.25, t: 0.09, d: 0.09, type: 'triangle' },
+      { f: 783.99, t: 0.18, d: 0.09, type: 'triangle' },
+      { f: 1046.5, t: 0.27, d: 0.3, type: 'sine' }
     ]);
   }
 
