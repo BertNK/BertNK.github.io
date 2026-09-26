@@ -20,6 +20,9 @@
   --shadow-color: rgba(20, 24, 28, 0.85);
   --on-accent: #FBFBF5;
   --on-accent2: #FBFBF5;
+  --deco-line: #1c1c1c;
+  --deco-flake: #2d5f99;
+  --deco-bat: #1a1210;
 }
 
 :root[data-theme="dark"] {
@@ -34,6 +37,9 @@
   --shadow-color: rgba(79, 224, 208, 0.35);
   --on-accent: #0E1418;
   --on-accent2: #F4EAFA;
+  --deco-line: #ececec;
+  --deco-flake: #f4fbff;
+  --deco-bat: #f2f2f2;
 }
 
 * {
@@ -76,7 +82,6 @@ button,
 .highlight,
 .theme-toggle,
 .rail-item a,
-.win98-icon,
 .icon-box-btn {
   cursor: var(--cursor-pointer);
 }
@@ -136,23 +141,6 @@ textarea {
 .season-toggle {
   right: 70px;
 }
-.os-toggle {
-  left: 18px;
-  right: auto;
-}
-.win-flag {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  width: 18px;
-  height: 14px;
-  transform: skewX(-12deg);
-}
-.win-flag i:nth-child(1) { background: #f44; }
-.win-flag i:nth-child(2) { background: #8c4; }
-.win-flag i:nth-child(3) { background: #4af; }
-.win-flag i:nth-child(4) { background: #fc3; }
-
 .season-icon {
   width: 20px;
   height: 20px;
@@ -181,23 +169,29 @@ textarea {
 .season-web-layer {
   position: absolute;
   inset: 0;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
   background:
-    radial-gradient(circle at 0 0, rgba(220, 220, 220, 0.55) 0%, transparent 42%),
-    radial-gradient(circle at 100% 0, rgba(220, 220, 220, 0.55) 0%, transparent 42%),
-    radial-gradient(circle at 0 100%, rgba(220, 220, 220, 0.5) 0%, transparent 42%),
-    radial-gradient(circle at 100% 100%, rgba(220, 220, 220, 0.5) 0%, transparent 42%);
-  mix-blend-mode: soft-light;
-  opacity: 0.85;
+    radial-gradient(circle at 0 0, rgba(0, 0, 0, 0.35) 0%, transparent 42%),
+    radial-gradient(circle at 100% 0, rgba(0, 0, 0, 0.35) 0%, transparent 42%),
+    radial-gradient(circle at 0 100%, rgba(0, 0, 0, 0.3) 0%, transparent 42%),
+    radial-gradient(circle at 100% 100%, rgba(0, 0, 0, 0.3) 0%, transparent 42%);
 }
 :root[data-theme="dark"] .season-web-layer {
   mix-blend-mode: screen;
-  opacity: 0.7;
+  opacity: 0.6;
+  background:
+    radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.4) 0%, transparent 42%),
+    radial-gradient(circle at 100% 0, rgba(255, 255, 255, 0.4) 0%, transparent 42%),
+    radial-gradient(circle at 0 100%, rgba(255, 255, 255, 0.35) 0%, transparent 42%),
+    radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.35) 0%, transparent 42%);
 }
 .season-web {
   position: absolute;
   width: min(280px, 42vw);
   height: min(280px, 42vw);
   opacity: 0.92;
+  color: var(--deco-line);
 }
 .season-web svg {
   display: block;
@@ -208,14 +202,15 @@ textarea {
 .season-web-tr { top: 0; right: 0; transform: scaleX(-1); }
 .season-web-bl { bottom: 0; left: 0; transform: scaleY(-1); }
 .season-web-br { bottom: 0; right: 0; transform: scale(-1); }
+
 .season-flake {
   position: absolute;
   top: -12px;
   width: 8px;
   height: 8px;
-  background: #f4fbff;
+  background: var(--deco-flake);
   border-radius: 50%;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 6px var(--deco-flake);
   animation-name: season-fall;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
@@ -230,8 +225,8 @@ textarea {
   content: "";
   position: absolute;
   inset: 40% 0;
-  background: #e8f6ff;
-  box-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
+  background: var(--deco-flake);
+  box-shadow: 0 0 4px var(--deco-flake);
 }
 .season-flake.crystal::after {
   inset: 0 40%;
@@ -240,6 +235,7 @@ textarea {
   position: absolute;
   width: 28px;
   height: 14px;
+  color: var(--deco-bat);
   animation-name: season-fly;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
@@ -375,36 +371,46 @@ textarea {
 .cta-button.secondary { background-color: var(--accent2); color: var(--on-accent2); }
 
 /* ---------------------------------------------------
-   desktop navbar
+   desktop nav - floating bottom bar
 --------------------------------------------------- */
 .navbar {
-  padding: 18px 24px;
-  background-color: var(--surface);
-  border-bottom: 2px solid var(--border);
-  text-align: center;
-  position: sticky;
-  top: 0;
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
   z-index: 40;
+  width: 35%;
+  min-width: 400px;
+  max-width: 640px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+  padding: 12px 18px;
 }
 .navbar .nav-links {
   list-style: none;
   display: flex;
-  justify-content: center;
-  gap: 32px;
+  justify-content: space-between;
+  gap: 12px;
 }
 .navbar .nav-links a {
   font-family: var(--font-display);
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 15px;
-  padding: 6px 4px;
+  font-size: 14px;
+  padding: 4px 2px;
   border-bottom: 2px solid transparent;
   transition: color 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
 }
 .navbar .nav-links a:hover,
 .navbar .nav-links a.active {
   color: var(--accent);
   border-bottom-color: var(--accent);
+}
+
+@media only screen and (min-width: 769px) {
+  .hero { padding-bottom: 132px; }
 }
 
 /* ---------------------------------------------------
@@ -640,12 +646,21 @@ textarea {
   font-family: var(--font-display);
 }
 
-/* ---------------------------------------------------
-   Mobile gallery rail (hidden on desktop)
---------------------------------------------------- */
-.rail {
-  display: none;
+.confirm-panel .mail-form {
+  padding: 20px;
 }
+.confirm-panel p {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.confirm-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.confirm-actions .cta-button { padding: 12px 24px; font-size: 15px; }
 
 /* ---------------------------------------------------
    Easter egg: hero shoots 3 aliens above the name
@@ -717,377 +732,29 @@ textarea {
   100% { opacity: 0; transform: translate(-50%, -26px); }
 }
 
-/* ---------------------------------------------------
-   Windows 98 desktop
---------------------------------------------------- */
-.win98-desktop[hidden] { display: none; }
-.win98-desktop {
-  display: none;
-}
-:root[data-os="win98"] .win98-desktop {
-  display: block;
+.egg-levelup {
   position: fixed;
-  inset: 0;
-  z-index: 90;
-  background: #008080;
-  font-family: Tahoma, 'MS Sans Serif', sans-serif;
-  overflow: hidden;
-}
-:root[data-os="win98"] .navbar,
-:root[data-os="win98"] .rail,
-:root[data-os="win98"] .landing-page,
-:root[data-os="win98"] #about,
-:root[data-os="win98"] #skills,
-:root[data-os="win98"] #hobbies,
-:root[data-os="win98"] #contact,
-:root[data-os="win98"] .os-toggle,
-:root[data-os="win98"] .theme-toggle {
-  display: none !important;
-}
-:root[data-os="win98"] body {
-  overflow: hidden;
-  background: #008080;
-}
-:root[data-os="win98"] body::before { display: none; }
-:root[data-os="win98"] .season-overlay { z-index: 91; }
-:root[data-os="win98"] .mail-backdrop { z-index: 140; }
-
-.win98-icons {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  z-index: 1;
-}
-.win98-icon {
-  width: 84px;
-  background: none;
-  border: none;
-  color: #fff;
-  text-shadow: 1px 1px 0 #000;
-  font-family: Tahoma, 'MS Sans Serif', sans-serif;
-  font-size: 11px;
-  text-align: center;
-  text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 4px;
-  cursor: var(--cursor-pointer);
-}
-.win98-icon:focus,
-.win98-icon:focus-visible {
-  outline: 1px dotted #fff;
-}
-.win98-icon-art {
-  width: 32px;
-  height: 32px;
-  image-rendering: pixelated;
-  box-shadow: 1px 1px 0 rgba(0,0,0,0.35);
-}
-.win98-icon-computer {
-  background:
-    linear-gradient(#c0c0c0, #c0c0c0) 4px 2px / 24px 18px no-repeat,
-    linear-gradient(#000080, #000080) 7px 5px / 18px 12px no-repeat,
-    linear-gradient(#808080, #808080) 10px 22px / 12px 4px no-repeat,
-    linear-gradient(#c0c0c0, #c0c0c0) 6px 26px / 20px 4px no-repeat;
-}
-.win98-icon-user {
-  background:
-    radial-gradient(circle at 16px 10px, #f5d0a9 0 6px, transparent 7px),
-    linear-gradient(#1e62d0, #1e62d0) 8px 16px / 16px 14px no-repeat;
-}
-.win98-icon-gear {
-  background:
-    conic-gradient(#c0c0c0 0 25%, #808080 0 50%, #c0c0c0 0 75%, #808080 0),
-    radial-gradient(circle, #008080 0 6px, #c0c0c0 7px 12px, transparent 13px);
-  background-size: 32px 32px;
-}
-.win98-icon-game {
-  background:
-    linear-gradient(#2ecc71, #2ecc71) 4px 10px / 24px 12px no-repeat,
-    radial-gradient(circle at 10px 16px, #fff 0 2px, transparent 3px),
-    radial-gradient(circle at 22px 16px, #e74c3c 0 2px, transparent 3px);
-}
-.win98-icon-mail,
-.win98-icon-outlook {
-  background:
-    linear-gradient(#fff, #fff) 4px 8px / 24px 16px no-repeat,
-    linear-gradient(135deg, transparent 50%, #c0392b 50%) 4px 8px / 12px 8px no-repeat,
-    linear-gradient(-135deg, transparent 50%, #c0392b 50%) 16px 8px / 12px 8px no-repeat;
-}
-.win98-icon-folder {
-  background:
-    linear-gradient(#e6c35c, #e6c35c) 4px 8px / 12px 6px no-repeat,
-    linear-gradient(#f4d06a, #d4a017) 4px 12px / 24px 16px no-repeat;
-}
-.win98-icon-network {
-  background:
-    radial-gradient(circle at 16px 10px, #fff 0 4px, #1e62d0 5px 8px, transparent 9px),
-    linear-gradient(#1e62d0, #1e62d0) 14px 18px / 4px 8px no-repeat,
-    linear-gradient(#f4d06a, #f4d06a) 6px 26px / 20px 4px no-repeat;
-}
-
-.win98-windows {
-  position: absolute;
-  inset: 0 0 28px 0;
-  pointer-events: none;
-}
-.win98-window {
-  pointer-events: auto;
-  position: absolute;
-  width: min(720px, calc(100vw - 32px));
-  max-height: calc(100vh - 80px);
-  background: #c0c0c0;
-  border: 2px solid #fff;
-  border-right-color: #404040;
-  border-bottom-color: #404040;
-  box-shadow: 1px 1px 0 #000;
-  display: flex;
-  flex-direction: column;
-  font-family: Tahoma, 'MS Sans Serif', sans-serif;
-}
-.win98-window.is-max {
-  inset: 0 !important;
-  width: auto !important;
-  max-height: none;
-}
-.win98-titlebar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  background: linear-gradient(90deg, #000080, #1084d0);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 3px 4px;
-  cursor: var(--cursor-auto);
-}
-.win98-titlebar span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.win98-chrome {
-  display: flex;
-  gap: 2px;
-}
-.win98-chrome button {
-  width: 16px;
-  height: 14px;
-  font-size: 10px;
-  line-height: 1;
-  background: #c0c0c0;
-  border: 1px solid #fff;
-  border-right-color: #404040;
-  border-bottom-color: #404040;
-  color: #000;
-  font-family: Tahoma, sans-serif;
-  padding: 0;
-  cursor: var(--cursor-pointer);
-}
-.win98-chrome button:active {
-  border-color: #404040;
-  border-right-color: #fff;
-  border-bottom-color: #fff;
-}
-.win98-body {
-  overflow: auto;
-  padding: 12px;
-  background: #c0c0c0;
-  color: #000;
-  font-size: 13px;
-  line-height: 1.45;
-}
-.win98-body .hero-content2,
-.win98-body .hero-content {
-  max-width: none;
-  width: 100%;
-  text-align: left;
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-}
-.win98-body .text-content h1,
-.win98-body .hero-content h1 {
-  font-size: 18px;
-  font-family: Tahoma, sans-serif;
-  color: #000;
-  margin-bottom: 10px;
-}
-.win98-body .eyebrow { color: #000080; font-size: 11px; }
-.win98-body p { font-size: 13px !important; color: #000 !important; }
-.win98-body .highlight { color: #000080; }
-.win98-body .image-content { max-width: 46%; }
-.win98-body .cta-buttons { justify-content: flex-start; margin-top: 12px; }
-.win98-body .cta-button {
-  background: #c0c0c0;
-  color: #000;
-  border: 2px solid #fff;
-  border-right-color: #404040;
-  border-bottom-color: #404040;
-  box-shadow: none;
-  font-family: Tahoma, sans-serif;
-  font-size: 12px;
-  padding: 6px 12px;
-}
-.win98-projects {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.win98-projects a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #000;
-  text-decoration: none;
-  padding: 8px;
-  border: 1px solid transparent;
-  cursor: var(--cursor-pointer);
-}
-.win98-projects a:hover {
-  background: #000080;
-  color: #fff;
-}
-.win98-projects .win98-icon-art { flex-shrink: 0; }
-
-.win98-taskbar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 28px;
-  background: #c0c0c0;
-  border-top: 2px solid #fff;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 4px;
-  z-index: 52;
-}
-.win98-start-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 22px;
-  padding: 0 8px;
-  font-weight: 700;
-  font-size: 12px;
-  font-family: Tahoma, sans-serif;
-  background: #c0c0c0;
-  border: 2px solid #fff;
-  border-right-color: #404040;
-  border-bottom-color: #404040;
-  cursor: var(--cursor-pointer);
-}
-.win98-start-btn.is-open,
-.win98-start-btn:active {
-  border-color: #404040;
-  border-right-color: #fff;
-  border-bottom-color: #fff;
-}
-.win98-start-btn .win-flag { width: 14px; height: 11px; }
-.win98-tasks {
-  flex: 1;
-  display: flex;
-  gap: 3px;
-  min-width: 0;
-}
-.win98-task {
-  max-width: 160px;
-  flex: 1;
-  height: 22px;
-  font-size: 11px;
-  text-align: left;
-  padding: 0 8px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  background: #c0c0c0;
-  border: 2px solid #fff;
-  border-right-color: #404040;
-  border-bottom-color: #404040;
-  font-family: Tahoma, sans-serif;
-  cursor: var(--cursor-pointer);
-}
-.win98-task.is-active {
-  border-color: #808080;
-  border-right-color: #fff;
-  border-bottom-color: #fff;
-  background: #d4d4d4;
-}
-.win98-tray {
-  height: 22px;
-  padding: 0 8px;
-  display: flex;
-  align-items: center;
-  border: 1px solid #808080;
-  border-right-color: #fff;
-  border-bottom-color: #fff;
-  font-size: 11px;
-  font-family: Tahoma, sans-serif;
-  min-width: 54px;
-  justify-content: center;
-}
-
-.win98-start-menu {
-  position: absolute;
-  left: 2px;
-  bottom: 28px;
-  width: 220px;
-  background: #c0c0c0;
-  border: 2px solid #fff;
-  border-right-color: #404040;
-  border-bottom-color: #404040;
-  display: flex;
-  flex-direction: column;
-  z-index: 60;
-  font-family: Tahoma, sans-serif;
-}
-.win98-start-menu[hidden] { display: none; }
-.win98-start-banner {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 28px;
-  background: linear-gradient(#000080, #1084d0);
-  color: #fff;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 8px 0;
-  letter-spacing: 0.04em;
+  color: var(--accent);
+  transform: translate(-50%, 0);
+  opacity: 0;
+  text-shadow: 2px 2px 0 var(--shadow-color);
+  animation: egg-levelup-pop 1.1s ease-out forwards;
 }
-.win98-start-banner span { font-weight: 400; opacity: 0.85; }
-.win98-start-menu button,
-.win98-start-menu a {
-  margin-left: 28px;
-  background: none;
-  border: none;
-  text-align: left;
-  padding: 8px 12px;
-  font-size: 12px;
-  color: #000;
-  text-decoration: none;
-  font-family: Tahoma, sans-serif;
-  cursor: var(--cursor-pointer);
+@keyframes egg-levelup-pop {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); }
+  25% { opacity: 1; transform: translate(-50%, -6px) scale(1.15); }
+  40% { transform: translate(-50%, -10px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -46px) scale(1); }
 }
-.win98-start-menu button:hover,
-.win98-start-menu a:hover {
-  background: #000080;
-  color: #fff;
-}
-.win98-start-menu hr {
-  margin: 4px 8px 4px 36px;
-  border: none;
-  border-top: 1px solid #808080;
-  border-bottom: 1px solid #fff;
+
+/* ---------------------------------------------------
+   Mobile timeline rail (hidden on desktop)
+--------------------------------------------------- */
+.rail {
+  display: none;
 }
 
 /* ---------------------------------------------------
@@ -1101,62 +768,91 @@ textarea {
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 0;
-    z-index: 40;
+    bottom: 16px;
     justify-content: center;
-    background: var(--surface);
-    border-top: 2px solid var(--border);
-    box-shadow: 0 -3px 0 var(--shadow-color);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 40;
   }
+  .season-overlay { z-index: 35; }
   .rail-list {
+    position: relative;
     list-style: none;
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
     align-items: flex-end;
-    width: 100%;
-    padding: 8px 4px;
+    gap: 26px;
+    padding: 0 10px;
+  }
+  .rail-list::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: 15px;
+    height: 2px;
+    background: var(--border);
+    opacity: 0.35;
+  }
+  .rail-item {
+    position: relative;
   }
   .rail-item a {
+    position: relative;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    text-decoration: none;
-    color: var(--text-muted);
-    font-family: var(--font-display);
-    padding: 12px 14px;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 10px 8px;
     min-width: 44px;
     min-height: 44px;
-    justify-content: center;
   }
-  .rail-index {
-    font-size: 11px;
-  }
+  .rail-index { display: none; }
   .rail-dot {
-    width: 5px;
-    height: 5px;
-    background: var(--text-muted);
+    position: relative;
+    z-index: 1;
+    width: 11px;
+    height: 11px;
+    border: 2px solid var(--border);
+    background: var(--surface);
     flex-shrink: 0;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .rail-item.active .rail-dot {
+    background: var(--accent);
+    transform: scale(1.2);
   }
   .rail-label {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 6px);
+    transform: translateX(-50%) scale(0.75);
+    font-family: var(--font-display);
     font-size: 0;
-    max-height: 0;
     opacity: 0;
+    max-width: 0;
     overflow: hidden;
     white-space: nowrap;
-    transition: max-height 0.2s ease, font-size 0.2s ease, opacity 0.2s ease;
+    color: var(--accent);
+    background: var(--surface);
+    border: 2px solid var(--border);
+    box-shadow: 3px 3px 0 var(--shadow-color);
+    padding: 0;
+    pointer-events: none;
+    transition: max-width 0.22s ease, opacity 0.22s ease, padding 0.22s ease, transform 0.22s ease;
   }
-  .rail-item.active a { color: var(--accent); }
-  .rail-item.active .rail-dot { background: var(--accent); }
   .rail-item.active .rail-label {
-    font-size: 10px;
-    max-height: 14px;
+    font-size: 12px;
+    max-width: 140px;
     opacity: 1;
+    padding: 6px 10px;
+    transform: translateX(-50%) scale(1);
+    animation: rail-pop 0.25s ease-out;
   }
 
-  .hero { padding: 64px 20px 84px; min-height: 100vh; }
+  @keyframes rail-pop {
+    0% { transform: translateX(-50%) scale(0.6); opacity: 0; }
+    100% { transform: translateX(-50%) scale(1); opacity: 1; }
+  }
+
+  .hero { padding: 64px 20px 108px; min-height: 100vh; }
   .hero h1 { font-size: 28px; }
   .hero p { font-size: 15px; }
 
@@ -1167,19 +863,10 @@ textarea {
   .image-content { max-width: 95%; }
   .text-content h1 { font-size: 25px; }
 
-  #contact .hero { padding-bottom: 96px; }
-
   .theme-toggle { top: 14px; right: 14px; width: 38px; height: 38px; }
   .season-toggle { right: 60px; }
-  .os-toggle { left: 14px; }
-
-  .win98-icons { flex-direction: row; flex-wrap: wrap; width: calc(100% - 24px); }
-  .win98-window { left: 8px !important; top: 8px !important; width: calc(100vw - 16px) !important; }
-  .win98-body .hero-content2 { flex-direction: column; }
-  .win98-body .image-content { max-width: 100%; }
 }
 
 @media only screen and (max-width: 420px) {
-  .rail-item a { padding: 10px 8px; }
   .hero h1 { font-size: 25px; }
 }
