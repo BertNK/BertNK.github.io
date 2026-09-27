@@ -30,15 +30,42 @@
     });
   }
 
-  // seasonal decorations: cycles off -> christmas -> halloween -> off
+  // keep following the system/browser color scheme live, as long as
+  // the person hasn't explicitly picked a theme themselves
+  if (window.matchMedia) {
+    var colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    var onSchemeChange = function (e) {
+      if (localStorage.getItem(STORAGE_KEY)) return;
+      applyTheme(e.matches ? 'dark' : 'light');
+    };
+    if (colorSchemeQuery.addEventListener) {
+      colorSchemeQuery.addEventListener('change', onSchemeChange);
+    } else if (colorSchemeQuery.addListener) {
+      colorSchemeQuery.addListener(onSchemeChange);
+    }
+  }
+
+  // seasonal decorations: cycles none -> christmas -> none -> halloween -> ...
+  // (always passing through "none" between the two so switching never
+  // looks like it glitches straight from one straight into the other)
   var SEASON_KEY = 'bert-portfolio-season';
-  var SEASONS = ['none', 'christmas', 'halloween'];
+  var SEASON_VALUES = ['none', 'christmas', 'halloween'];
+  var SEASON_CYCLE = ['none', 'christmas', 'none', 'halloween'];
   var seasonBtn = document.getElementById('season-toggle');
   var seasonOverlay = document.getElementById('season-overlay');
+  var seasonCycleIndex = 0;
+
+  function monthDefaultSeason() {
+    var month = new Date().getMonth(); // 0 = January
+    if (month === 9) return 'halloween'; // October
+    if (month === 11) return 'christmas'; // December
+    return 'none';
+  }
 
   function getStoredSeason() {
     var stored = localStorage.getItem(SEASON_KEY);
-    return SEASONS.indexOf(stored) !== -1 ? stored : 'none';
+    if (SEASON_VALUES.indexOf(stored) !== -1) return stored;
+    return monthDefaultSeason();
   }
 
   function applySeason(season) {
@@ -150,12 +177,14 @@
     }
   }
 
-  applySeason(getStoredSeason());
+  var initialSeason = getStoredSeason();
+  seasonCycleIndex = Math.max(0, SEASON_CYCLE.indexOf(initialSeason));
+  applySeason(initialSeason);
 
   if (seasonBtn) {
     seasonBtn.addEventListener('click', function () {
-      var current = root.getAttribute('data-season') || 'none';
-      var next = SEASONS[(SEASONS.indexOf(current) + 1) % SEASONS.length];
+      seasonCycleIndex = (seasonCycleIndex + 1) % SEASON_CYCLE.length;
+      var next = SEASON_CYCLE[seasonCycleIndex];
       applySeason(next);
       try { localStorage.setItem(SEASON_KEY, next); } catch (e) {}
     });
@@ -312,6 +341,7 @@
     var label = null;
     if (href.indexOf('linkedin.com') !== -1) label = 'LinkedIn';
     else if (href.indexOf('github.com') !== -1) label = 'GitHub';
+    else if (href.indexOf('chamsyslighting.com') !== -1) label = 'the official Chamsys website';
     if (!label) return;
     link.addEventListener('click', function (e) {
       e.preventDefault();
