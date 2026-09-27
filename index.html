@@ -25,18 +25,7 @@
       <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/></svg>
     </button>
 
-    <!-- Desktop / tablet navbar -->
-    <nav class="navbar">
-      <ul class="nav-links">
-        <li><a href="#home" data-section="home">[ Home ]</a></li>
-        <li><a href="#about" data-section="about">[ About ]</a></li>
-        <li><a href="#skills" data-section="skills">[ Skills ]</a></li>
-        <li><a href="#hobbies" data-section="hobbies">[ Hobbies ]</a></li>
-        <li><a href="#contact" data-section="contact">[ Contact ]</a></li>
-      </ul>
-    </nav>
-
-    <!-- Mobile gallery rail -->
+    <!-- Section navigation (timeline-style, used at every screen size) -->
     <nav class="rail" aria-label="Section navigation">
       <ol class="rail-list">
         <li class="rail-item" data-section="home"><a href="#home"><span class="rail-index">01</span><span class="rail-label">Home</span><span class="rail-dot"></span></a></li>
@@ -51,7 +40,7 @@
         <section class="hero">
           <div class="hero-content">
             <p class="eyebrow">01 // Software Developer</p>
-            <h1>Hello, my name is <span class="highlight" id="hero-name" title="try clicking me one time">Bert.</span></h1>
+            <h1>Hello, my name is <span class="highlight" id="hero-name" title="try clicking me three times">Bert.</span></h1>
             <h1>I am a <span class="highlight">Software Developer</span></h1>
             <div class="cta-buttons">
               <a href="#about" class="cta-button">About me</a>
@@ -167,6 +156,7 @@
         </form>
       </div>
     </div>
+
     <div class="mail-backdrop" id="confirm-backdrop" hidden>
       <div class="mail-panel confirm-panel" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
         <div class="mail-panel-bar">
@@ -184,6 +174,10 @@
     </div>
 
     <div id="season-overlay" class="season-overlay" aria-hidden="true"></div>
+
+    <button type="button" class="scroll-hint" id="scroll-hint" hidden aria-label="Scroll to next section">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l7 7 7-7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
 
     <div id="egg-overlay" class="egg-overlay" aria-hidden="true"></div>
 

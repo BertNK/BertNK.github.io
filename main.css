@@ -67,6 +67,11 @@ textarea {
 
 html {
   scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -163,7 +168,7 @@ textarea {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 65;
+  z-index: 35;
   overflow: hidden;
 }
 .season-web-layer {
@@ -253,10 +258,31 @@ textarea {
   width: 38px;
   height: 34px;
   filter: drop-shadow(1px 2px 0 rgba(0, 0, 0, 0.35));
+  cursor: var(--cursor-pointer);
 }
 .frame-pumpkin-left { left: 10px; }
 .frame-pumpkin-right { right: 10px; transform: scaleX(-1); }
 :root[data-season="halloween"] .frame-pumpkin { display: block; }
+
+.frame-pumpkin-inner {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.frame-pumpkin-inner.rolling-left {
+  animation: pumpkin-roll-left 0.8s ease-in forwards;
+}
+.frame-pumpkin-inner.rolling-right {
+  animation: pumpkin-roll-right 0.8s ease-in forwards;
+}
+@keyframes pumpkin-roll-left {
+  0% { transform: translateX(0) rotate(0deg); }
+  100% { transform: translateX(-130vw) rotate(-720deg); }
+}
+@keyframes pumpkin-roll-right {
+  0% { transform: translateX(0) rotate(0deg); }
+  100% { transform: translateX(130vw) rotate(720deg); }
+}
 
 .frame-lights {
   display: none;
@@ -369,49 +395,6 @@ textarea {
 .cta-button:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--shadow-color); }
 .cta-button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow-color); }
 .cta-button.secondary { background-color: var(--accent2); color: var(--on-accent2); }
-
-/* ---------------------------------------------------
-   desktop nav - floating bottom bar
---------------------------------------------------- */
-.navbar {
-  position: fixed;
-  left: 50%;
-  bottom: 22px;
-  transform: translateX(-50%);
-  z-index: 40;
-  width: 35%;
-  min-width: 400px;
-  max-width: 640px;
-  background: var(--surface);
-  border: 2px solid var(--border);
-  box-shadow: 4px 4px 0 var(--shadow-color);
-  padding: 12px 18px;
-}
-.navbar .nav-links {
-  list-style: none;
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-.navbar .nav-links a {
-  font-family: var(--font-display);
-  color: var(--text-muted);
-  text-decoration: none;
-  font-size: 14px;
-  padding: 4px 2px;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s ease, border-color 0.2s ease;
-  white-space: nowrap;
-}
-.navbar .nav-links a:hover,
-.navbar .nav-links a.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
-
-@media only screen and (min-width: 769px) {
-  .hero { padding-bottom: 132px; }
-}
 
 /* ---------------------------------------------------
    Two-column sections
@@ -732,6 +715,50 @@ textarea {
   100% { opacity: 0; transform: translate(-50%, -26px); }
 }
 
+/* ---------------------------------------------------
+   Scroll-down hint (after a minute lingering on a section)
+--------------------------------------------------- */
+.scroll-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 92px;
+  transform: translateX(-50%);
+  z-index: 45;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.15s ease;
+}
+.scroll-hint svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.scroll-hint.show {
+  opacity: 1;
+  pointer-events: auto;
+  animation: scroll-hint-pulse 1.8s ease-in-out infinite;
+}
+.scroll-hint:hover { transform: translateX(-50%) translateY(-2px); }
+@keyframes scroll-hint-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@media only screen and (min-width: 1500px) {
+  .scroll-hint { bottom: 118px; width: 48px; height: 48px; }
+  .scroll-hint svg { width: 24px; height: 24px; }
+}
+
 .egg-levelup {
   position: fixed;
   font-family: var(--font-display);
@@ -751,107 +778,113 @@ textarea {
 }
 
 /* ---------------------------------------------------
-   Mobile timeline rail (hidden on desktop)
+   Section navigation - timeline rail, used at every size
 --------------------------------------------------- */
 .rail {
-  display: none;
+  display: flex;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 16px;
+  justify-content: center;
+  z-index: 40;
+}
+.rail-list {
+  position: relative;
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 26px;
+  padding: 0 10px;
+}
+.rail-list::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 15px;
+  height: 2px;
+  background: var(--border);
+  opacity: 0.35;
+}
+.rail-item {
+  position: relative;
+}
+.rail-item a {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 10px 8px;
+  min-width: 44px;
+  min-height: 44px;
+}
+.rail-index { display: none; }
+.rail-dot {
+  position: relative;
+  z-index: 1;
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.rail-item.active .rail-dot {
+  background: var(--accent);
+  transform: scale(1.2);
+}
+.rail-label {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%) scale(0.75);
+  font-family: var(--font-display);
+  font-size: 0;
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--accent);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  padding: 0;
+  pointer-events: none;
+  transition: max-width 0.22s ease, opacity 0.22s ease, padding 0.22s ease, transform 0.22s ease;
+}
+.rail-item.active .rail-label {
+  font-size: 12px;
+  max-width: 140px;
+  opacity: 1;
+  padding: 6px 10px;
+  transform: translateX(-50%) scale(1);
+  animation: rail-pop 0.25s ease-out;
+}
+
+@keyframes rail-pop {
+  0% { transform: translateX(-50%) scale(0.6); opacity: 0; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+.hero { padding-bottom: 108px; }
+
+/* big desktop: same nav, scaled up */
+@media only screen and (min-width: 1500px) {
+  .rail { bottom: 26px; }
+  .rail-list { gap: 40px; padding: 0 16px; }
+  .rail-item a { padding: 14px 10px; min-width: 56px; min-height: 56px; }
+  .rail-dot { width: 15px; height: 15px; }
+  .rail-label { font-size: 0; bottom: calc(100% + 10px); }
+  .rail-item.active .rail-label { font-size: 16px; max-width: 200px; padding: 9px 14px; }
+  .hero { padding-bottom: 140px; }
 }
 
 /* ---------------------------------------------------
    Responsive
 --------------------------------------------------- */
 @media only screen and (max-width: 768px) {
-  .navbar { display: none; }
-
-  .rail {
-    display: flex;
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 16px;
-    justify-content: center;
-    z-index: 40;
-  }
-  .season-overlay { z-index: 35; }
-  .rail-list {
-    position: relative;
-    list-style: none;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    gap: 26px;
-    padding: 0 10px;
-  }
-  .rail-list::before {
-    content: "";
-    position: absolute;
-    left: 6px;
-    right: 6px;
-    bottom: 15px;
-    height: 2px;
-    background: var(--border);
-    opacity: 0.35;
-  }
-  .rail-item {
-    position: relative;
-  }
-  .rail-item a {
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding: 10px 8px;
-    min-width: 44px;
-    min-height: 44px;
-  }
-  .rail-index { display: none; }
-  .rail-dot {
-    position: relative;
-    z-index: 1;
-    width: 11px;
-    height: 11px;
-    border: 2px solid var(--border);
-    background: var(--surface);
-    flex-shrink: 0;
-    transition: background 0.2s ease, transform 0.2s ease;
-  }
-  .rail-item.active .rail-dot {
-    background: var(--accent);
-    transform: scale(1.2);
-  }
-  .rail-label {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 6px);
-    transform: translateX(-50%) scale(0.75);
-    font-family: var(--font-display);
-    font-size: 0;
-    opacity: 0;
-    max-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    color: var(--accent);
-    background: var(--surface);
-    border: 2px solid var(--border);
-    box-shadow: 3px 3px 0 var(--shadow-color);
-    padding: 0;
-    pointer-events: none;
-    transition: max-width 0.22s ease, opacity 0.22s ease, padding 0.22s ease, transform 0.22s ease;
-  }
-  .rail-item.active .rail-label {
-    font-size: 12px;
-    max-width: 140px;
-    opacity: 1;
-    padding: 6px 10px;
-    transform: translateX(-50%) scale(1);
-    animation: rail-pop 0.25s ease-out;
-  }
-
-  @keyframes rail-pop {
-    0% { transform: translateX(-50%) scale(0.6); opacity: 0; }
-    100% { transform: translateX(-50%) scale(1); opacity: 1; }
-  }
-
   .hero { padding: 64px 20px 108px; min-height: 100vh; }
   .hero h1 { font-size: 28px; }
   .hero p { font-size: 15px; }
