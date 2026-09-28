@@ -1,4 +1,29 @@
 (function () {
+  // load-in reveal: wait for everything (assets + fonts), then one
+  // extra second of calm before the ripple opens
+  var curtain = document.getElementById('preload-curtain');
+
+  function revealPage() {
+    if (!curtain) return;
+    curtain.classList.add('revealed');
+    setTimeout(function () {
+      if (curtain.parentNode) curtain.parentNode.removeChild(curtain);
+    }, 2700);
+  }
+
+  function scheduleReveal() {
+    var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    fontsReady.catch(function () {}).then(function () {
+      setTimeout(revealPage, 1000);
+    });
+  }
+
+  if (document.readyState === 'complete') {
+    scheduleReveal();
+  } else {
+    window.addEventListener('load', scheduleReveal);
+  }
+
   var root = document.documentElement;
   var toggleBtn = document.getElementById('theme-toggle');
   var STORAGE_KEY = 'bert-portfolio-theme';
@@ -20,15 +45,6 @@
   }
 
   applyTheme(getPreferredTheme());
-
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', function () {
-      var current = root.getAttribute('data-theme');
-      var next = current === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
-    });
-  }
 
   // keep following the system/browser color scheme live, as long as
   // the person hasn't explicitly picked a theme themselves
@@ -117,12 +133,22 @@
       if (season === 'halloween') {
         var left = document.createElement('div');
         left.className = 'frame-deco frame-pumpkin frame-pumpkin-left';
-        left.innerHTML = pumpkinSVG();
+        var leftInner = document.createElement('span');
+        leftInner.className = 'frame-pumpkin-inner';
+        leftInner.innerHTML = pumpkinSVG();
+        left.appendChild(leftInner);
+
         var right = document.createElement('div');
         right.className = 'frame-deco frame-pumpkin frame-pumpkin-right';
-        right.innerHTML = pumpkinSVG();
+        var rightInner = document.createElement('span');
+        rightInner.className = 'frame-pumpkin-inner';
+        rightInner.innerHTML = pumpkinSVG();
+        right.appendChild(rightInner);
+
         win.appendChild(left);
         win.appendChild(right);
+        makePumpkinRollable(left, leftInner, 'left');
+        makePumpkinRollable(right, rightInner, 'right');
       } else {
         var lights = document.createElement('div');
         lights.className = 'frame-deco frame-lights';
@@ -134,6 +160,20 @@
         }
         win.appendChild(lights);
       }
+    });
+  }
+
+  // click a pumpkin and it rolls off screen; a fresh one appears next
+  // time the frames are (re)decorated, e.g. after toggling the season
+  function makePumpkinRollable(outer, inner, direction) {
+    outer.style.cursor = 'var(--cursor-pointer)';
+    outer.addEventListener('click', function () {
+      if (inner.classList.contains('rolling')) return;
+      inner.classList.add('rolling', direction === 'left' ? 'rolling-left' : 'rolling-right');
+      inner.addEventListener('animationend', function handler() {
+        outer.style.display = 'none';
+        inner.removeEventListener('animationend', handler);
+      });
     });
   }
 
@@ -190,17 +230,53 @@
     });
   }
 
-  // scroll spy: mark active section in nav + rail
+  // scroll spy: mark active section in the rail, and track how long
+  // someone lingers on a section to offer a "scroll down" nudge
+  var SECTION_ORDER = ['home', 'about', 'skills', 'hobbies', 'contact'];
+  var HINT_EXCLUDED = ['home', 'contact'];
+  var DWELL_MS = 60000;
+
   var sections = document.querySelectorAll('#home, #about, #skills, #hobbies, #contact');
-  var navLinks = document.querySelectorAll('.navbar .nav-links a');
   var railItems = document.querySelectorAll('.rail-item');
+  var scrollHint = document.getElementById('scroll-hint');
+  var dwellTimer = null;
+  var currentSectionId = null;
 
   function setActive(id) {
-    navLinks.forEach(function (link) {
-      link.classList.toggle('active', link.getAttribute('data-section') === id);
-    });
+    if (id === currentSectionId) return;
+    currentSectionId = id;
+
     railItems.forEach(function (item) {
       item.classList.toggle('active', item.getAttribute('data-section') === id);
+    });
+
+    clearTimeout(dwellTimer);
+    hideScrollHint();
+    if (HINT_EXCLUDED.indexOf(id) === -1) {
+      dwellTimer = setTimeout(function () { showScrollHint(); }, DWELL_MS);
+    }
+  }
+
+  function showScrollHint() {
+    if (!scrollHint) return;
+    scrollHint.hidden = false;
+    requestAnimationFrame(function () { scrollHint.classList.add('show'); });
+  }
+
+  function hideScrollHint() {
+    if (!scrollHint) return;
+    scrollHint.classList.remove('show');
+    scrollHint.hidden = true;
+  }
+
+  if (scrollHint) {
+    scrollHint.addEventListener('click', function () {
+      var idx = SECTION_ORDER.indexOf(currentSectionId);
+      var nextId = idx > -1 ? SECTION_ORDER[idx + 1] : null;
+      var nextEl = nextId ? document.getElementById(nextId) : null;
+      if (nextEl) nextEl.scrollIntoView({ behavior: 'smooth' });
+      clearTimeout(dwellTimer);
+      hideScrollHint();
     });
   }
 
