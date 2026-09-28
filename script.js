@@ -3,12 +3,34 @@
   // extra second of calm before the ripple opens
   var curtain = document.getElementById('preload-curtain');
 
+  var drop = document.getElementById('preload-drop');
+
+  // sequence: a drop falls to the focal point, then rings spread out
+  // while the curtain opens along the first ring
   function revealPage() {
     if (!curtain) return;
-    curtain.classList.add('revealed');
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // size the rings so the first one travels with the edge of the reveal
+    var W = curtain.clientWidth || window.innerWidth;
+    var H = curtain.clientHeight || window.innerHeight;
+    var cx = W * 0.5;
+    var cy = H * 0.42;
+    var farthest = Math.sqrt(Math.pow(Math.max(cx, W - cx), 2) + Math.pow(Math.max(cy, H - cy), 2));
+    if (drop) drop.style.setProperty('--pd-ring-size', (farthest * 2 * 1.12) + 'px');
+
+    var fallMs = reduceMotion ? 0 : 850;
+    if (drop && !reduceMotion) drop.classList.add('is-falling');
+
+    setTimeout(function () {
+      if (drop) drop.classList.add('is-impact');
+      curtain.classList.add('revealed');
+    }, fallMs);
+
     setTimeout(function () {
       if (curtain.parentNode) curtain.parentNode.removeChild(curtain);
-    }, 2700);
+      if (drop && drop.parentNode) drop.parentNode.removeChild(drop);
+    }, fallMs + 2800);
   }
 
   function scheduleReveal() {
@@ -26,17 +48,42 @@
 
   var root = document.documentElement;
   var toggleBtn = document.getElementById('theme-toggle');
+  var metaThemeColor = document.querySelector('meta[name="theme-color"]');
   var STORAGE_KEY = 'bert-portfolio-theme';
+  var currentTheme = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  var userPickedTheme = false;
 
-  // theme: read saved pref, else system pref
+  // storage can throw (private modes, blocked cookies, some in-app
+  // browsers) - never let that stop the rest of the page from working
+  function readStored(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+  function writeStored(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) {}
+  }
+
+  function systemPrefersDark() {
+    try {
+      return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // theme: a saved pick wins, otherwise follow the browser/system
   function getPreferredTheme() {
-    var stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark') return stored;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    var stored = readStored(STORAGE_KEY);
+    if (stored === 'light' || stored === 'dark') {
+      userPickedTheme = true;
+      return stored;
+    }
+    return systemPrefersDark() ? 'dark' : 'light';
   }
 
   function applyTheme(theme) {
+    currentTheme = theme;
     root.setAttribute('data-theme', theme);
+    if (metaThemeColor) metaThemeColor.setAttribute('content', theme === 'dark' ? '#0E1418' : '#E9EFE9');
     if (toggleBtn) {
       var isDark = theme === 'dark';
       toggleBtn.setAttribute('aria-pressed', String(isDark));
@@ -46,20 +93,32 @@
 
   applyTheme(getPreferredTheme());
 
-  // keep following the system/browser color scheme live, as long as
-  // the person hasn't explicitly picked a theme themselves
-  if (window.matchMedia) {
-    var colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    var onSchemeChange = function (e) {
-      if (localStorage.getItem(STORAGE_KEY)) return;
-      applyTheme(e.matches ? 'dark' : 'light');
-    };
-    if (colorSchemeQuery.addEventListener) {
-      colorSchemeQuery.addEventListener('change', onSchemeChange);
-    } else if (colorSchemeQuery.addListener) {
-      colorSchemeQuery.addListener(onSchemeChange);
-    }
+  // the toggle flips whatever is currently shown, no matter what the
+  // browser default is, and remembers the pick
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function () {
+      var next = currentTheme === 'dark' ? 'light' : 'dark';
+      userPickedTheme = true;
+      applyTheme(next);
+      writeStored(STORAGE_KEY, next);
+    });
   }
+
+  // keep following live system changes, but only until a theme is picked
+  try {
+    if (window.matchMedia) {
+      var colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      var onSchemeChange = function (e) {
+        if (userPickedTheme) return;
+        applyTheme(e.matches ? 'dark' : 'light');
+      };
+      if (colorSchemeQuery.addEventListener) {
+        colorSchemeQuery.addEventListener('change', onSchemeChange);
+      } else if (colorSchemeQuery.addListener) {
+        colorSchemeQuery.addListener(onSchemeChange);
+      }
+    }
+  } catch (e) {}
 
   // seasonal decorations: cycles none -> christmas -> none -> halloween -> ...
   // (always passing through "none" between the two so switching never
@@ -79,7 +138,7 @@
   }
 
   function getStoredSeason() {
-    var stored = localStorage.getItem(SEASON_KEY);
+    var stored = readStored(SEASON_KEY);
     if (SEASON_VALUES.indexOf(stored) !== -1) return stored;
     return monthDefaultSeason();
   }
@@ -126,29 +185,37 @@
     );
   }
 
+  // a squashed pumpkin: flat orange mess, seeds, a bent stem, a few drips
+  function smashedPumpkinSVG() {
+    return (
+      '<svg viewBox="0 0 40 36" aria-hidden="true">' +
+      '<path d="M3 27C2 22 8 19 13 20C14 15 21 14 25 17C29 15 36 18 35 23C39 25 37 30 32 30C28 33 20 32 16 32C10 33 4 31 3 27Z" fill="#e07020"/>' +
+      '<path d="M9 26C12 22 18 23 21 25C25 22 30 23 32 27C27 29 22 29 19 30C14 30 10 29 9 26Z" fill="#c75a12"/>' +
+      '<ellipse cx="14" cy="22" rx="3" ry="1.4" fill="#f08a38"/>' +
+      '<ellipse cx="18" cy="26" rx="1.6" ry="0.9" fill="#f6dfb0" transform="rotate(-20 18 26)"/>' +
+      '<ellipse cx="24" cy="27" rx="1.6" ry="0.9" fill="#f6dfb0" transform="rotate(15 24 27)"/>' +
+      '<ellipse cx="28" cy="24" rx="1.4" ry="0.8" fill="#f6dfb0" transform="rotate(-10 28 24)"/>' +
+      '<path d="M22 14l4-4 2 2-3 4z" fill="#3d7a32"/>' +
+      '<circle cx="2" cy="18" r="1.6" fill="#e07020"/>' +
+      '<circle cx="38" cy="20" r="1.4" fill="#e07020"/>' +
+      '<circle cx="33" cy="12" r="1.2" fill="#c75a12"/>' +
+      '<circle cx="8" cy="14" r="1.3" fill="#e07020"/>' +
+      '<circle cx="20" cy="7" r="1" fill="#f08a38"/>' +
+      '<path d="M12 31q0 4 1.5 5q1.5-1 1.5-5z" fill="#c75a12"/>' +
+      '</svg>'
+    );
+  }
+
+  // pumpkins that have been smashed - stays until the page is refreshed
+  var smashedPumpkins = {};
+
   function decorateFrames(season) {
     document.querySelectorAll('.frame-deco').forEach(function (el) { el.remove(); });
     if (season !== 'halloween' && season !== 'christmas') return;
-    document.querySelectorAll('.retro-window').forEach(function (win) {
+    document.querySelectorAll('.retro-window').forEach(function (win, index) {
       if (season === 'halloween') {
-        var left = document.createElement('div');
-        left.className = 'frame-deco frame-pumpkin frame-pumpkin-left';
-        var leftInner = document.createElement('span');
-        leftInner.className = 'frame-pumpkin-inner';
-        leftInner.innerHTML = pumpkinSVG();
-        left.appendChild(leftInner);
-
-        var right = document.createElement('div');
-        right.className = 'frame-deco frame-pumpkin frame-pumpkin-right';
-        var rightInner = document.createElement('span');
-        rightInner.className = 'frame-pumpkin-inner';
-        rightInner.innerHTML = pumpkinSVG();
-        right.appendChild(rightInner);
-
-        win.appendChild(left);
-        win.appendChild(right);
-        makePumpkinRollable(left, leftInner, 'left');
-        makePumpkinRollable(right, rightInner, 'right');
+        win.appendChild(createPumpkin('left', index + '-left'));
+        win.appendChild(createPumpkin('right', index + '-right'));
       } else {
         var lights = document.createElement('div');
         lights.className = 'frame-deco frame-lights';
@@ -163,18 +230,102 @@
     });
   }
 
-  // click a pumpkin and it rolls off screen; a fresh one appears next
-  // time the frames are (re)decorated, e.g. after toggling the season
-  function makePumpkinRollable(outer, inner, direction) {
-    outer.style.cursor = 'var(--cursor-pointer)';
-    outer.addEventListener('click', function () {
-      if (inner.classList.contains('rolling')) return;
-      inner.classList.add('rolling', direction === 'left' ? 'rolling-left' : 'rolling-right');
-      inner.addEventListener('animationend', function handler() {
-        outer.style.display = 'none';
-        inner.removeEventListener('animationend', handler);
-      });
-    });
+  // builds one frame pumpkin; if it was smashed earlier it comes back smashed
+  function createPumpkin(side, key) {
+    var outer = document.createElement('div');
+    outer.className = 'frame-deco frame-pumpkin frame-pumpkin-' + side;
+    var inner = document.createElement('span');
+    inner.className = 'frame-pumpkin-inner';
+    outer.appendChild(inner);
+
+    if (smashedPumpkins[key]) {
+      outer.classList.add('is-smashed');
+      inner.innerHTML = smashedPumpkinSVG();
+    } else {
+      inner.innerHTML = pumpkinSVG();
+      outer.addEventListener('click', function () { smashPumpkin(outer, inner, key); });
+    }
+    return outer;
+  }
+
+  // instant smash: swap to the splat, throw a few chunks, play the splash
+  function smashPumpkin(outer, inner, key) {
+    if (smashedPumpkins[key]) return;
+    smashedPumpkins[key] = true;
+    outer.classList.add('is-smashed');
+    inner.innerHTML = smashedPumpkinSVG();
+    inner.classList.add('splat-pop');
+    spawnChunks(outer);
+    playSplash();
+  }
+
+  function spawnChunks(outer) {
+    var colors = ['#e07020', '#f08a38', '#c75a12', '#f6dfb0'];
+    for (var i = 0; i < 10; i += 1) {
+      var chunk = document.createElement('span');
+      chunk.className = 'frame-chunk';
+      var angle = Math.random() * Math.PI * 2;
+      var dist = 22 + Math.random() * 34;
+      var size = 3 + Math.random() * 4;
+      chunk.style.setProperty('--dx', (Math.cos(angle) * dist) + 'px');
+      chunk.style.setProperty('--dy', (Math.sin(angle) * dist * 0.8 - 6) + 'px');
+      chunk.style.background = colors[i % colors.length];
+      chunk.style.width = size + 'px';
+      chunk.style.height = size + 'px';
+      outer.appendChild(chunk);
+      (function (c) {
+        setTimeout(function () { if (c.parentNode) c.parentNode.removeChild(c); }, 700);
+      })(chunk);
+    }
+  }
+
+  // soft wet splash: low-passed noise burst that closes down, plus a
+  // short low thump - filtered so it stays gentle on the ears
+  function playSplash() {
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      var ctx = new Ctx();
+      var t0 = ctx.currentTime;
+
+      var len = Math.floor(ctx.sampleRate * 0.4);
+      var buffer = ctx.createBuffer(1, len, ctx.sampleRate);
+      var data = buffer.getChannelData(0);
+      for (var i = 0; i < len; i += 1) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+      }
+      var noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      var filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(2600, t0);
+      filter.frequency.exponentialRampToValueAtTime(350, t0 + 0.35);
+      var noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.0001, t0);
+      noiseGain.gain.exponentialRampToValueAtTime(0.28, t0 + 0.015);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.38);
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+
+      var thump = ctx.createOscillator();
+      var thumpGain = ctx.createGain();
+      thump.type = 'sine';
+      thump.frequency.setValueAtTime(140, t0);
+      thump.frequency.exponentialRampToValueAtTime(45, t0 + 0.14);
+      thumpGain.gain.setValueAtTime(0.0001, t0);
+      thumpGain.gain.exponentialRampToValueAtTime(0.35, t0 + 0.01);
+      thumpGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.18);
+      thump.connect(thumpGain);
+      thumpGain.connect(ctx.destination);
+
+      noise.start(t0);
+      thump.start(t0);
+      thump.stop(t0 + 0.2);
+      setTimeout(function () { ctx.close(); }, 700);
+    } catch (e) {
+      // no web audio, the smash still happens silently
+    }
   }
 
   function renderSeason(season) {
@@ -226,7 +377,7 @@
       seasonCycleIndex = (seasonCycleIndex + 1) % SEASON_CYCLE.length;
       var next = SEASON_CYCLE[seasonCycleIndex];
       applySeason(next);
-      try { localStorage.setItem(SEASON_KEY, next); } catch (e) {}
+      writeStored(SEASON_KEY, next);
     });
   }
 

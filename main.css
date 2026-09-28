@@ -2,6 +2,9 @@
    Tokens
 --------------------------------------------------- */
 :root {
+  /* tells the browser this page handles both schemes itself, so
+     "force dark" modes don't recolour the light theme (or vice versa) */
+  color-scheme: light dark;
   --font-display: 'Space Mono', 'Courier New', monospace;
   --font-body: 'Inter', Arial, Helvetica, sans-serif;
   --cursor-auto: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' shape-rendering='crispEdges'%3E%3Cpolygon fill='%23000' points='1,1 1,18 6,14 9,22 13,20 10,13 17,13'/%3E%3Cpolygon fill='%23fff' points='3,3 3,16 7,13 10,20 12,19 9,12 15,12'/%3E%3C/svg%3E") 1 1, auto;
@@ -65,6 +68,13 @@ textarea {
   user-select: text;
 }
 
+button { color: inherit; }
+
+/* dark-aware hint for browsers that look for a prefers-color-scheme rule */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: light dark; }
+}
+
 html {
   scroll-behavior: smooth;
   scrollbar-width: none;
@@ -89,15 +99,6 @@ html::-webkit-scrollbar {
   inset: 0;
   z-index: 999;
   background-color: var(--bg, #E9EFE9);
-  background-image: radial-gradient(
-    circle farthest-corner at 50% 42%,
-    transparent calc(var(--reveal-r) + 0.4%),
-    color-mix(in srgb, var(--accent, #0F6E6A) 20%, transparent) calc(var(--reveal-r) + 1%),
-    transparent calc(var(--reveal-r) + 1.9%),
-    transparent calc(var(--reveal-r) + 4.6%),
-    color-mix(in srgb, var(--accent, #0F6E6A) 9%, transparent) calc(var(--reveal-r) + 5.4%),
-    transparent calc(var(--reveal-r) + 6.4%)
-  );
   -webkit-mask-image: radial-gradient(
     circle farthest-corner at 50% 42%,
     transparent var(--reveal-r),
@@ -119,6 +120,64 @@ html::-webkit-scrollbar {
 }
 @keyframes curtain-failsafe {
   to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* water drop: falls to the focal point, then rings spread outward
+   in step with the reveal (same duration + easing as the mask hole) */
+#preload-drop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  overflow: hidden;
+  --pd-ring-size: 3000px;
+  animation: curtain-failsafe 0.01s linear 12s forwards;
+}
+.pd-drop {
+  position: absolute;
+  left: 50%;
+  top: -8%;
+  width: 16px;
+  height: 24px;
+  margin-left: -8px;
+  color: var(--accent, #0F6E6A);
+  opacity: 0;
+  transform-origin: 50% 100%;
+}
+#preload-drop.is-falling .pd-drop {
+  animation: pd-fall 0.85s cubic-bezier(0.5, 0, 0.85, 0.5) forwards;
+}
+#preload-drop.is-impact .pd-drop {
+  animation: none;
+  opacity: 0;
+}
+@keyframes pd-fall {
+  0%   { top: -8%; opacity: 0; transform: scaleY(0.92); }
+  12%  { opacity: 1; }
+  100% { top: calc(42% - 24px); opacity: 1; transform: scaleY(1.15); }
+}
+.pd-ring {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 0;
+  height: 0;
+  border: 1.5px solid var(--accent, #0F6E6A);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  --ring-o: 0.75;
+}
+#preload-drop.is-impact .pd-ring {
+  animation: pd-ring 1.9s cubic-bezier(0.22, 0.6, 0.28, 1) forwards;
+}
+#preload-drop.is-impact .pd-ring:nth-of-type(1) { --ring-o: 0.75; }
+#preload-drop.is-impact .pd-ring:nth-of-type(2) { --ring-o: 0.55; animation-delay: 0.22s; }
+#preload-drop.is-impact .pd-ring:nth-of-type(3) { --ring-o: 0.4;  animation-delay: 0.44s; }
+#preload-drop.is-impact .pd-ring:nth-of-type(4) { --ring-o: 0.28; animation-delay: 0.66s; }
+@keyframes pd-ring {
+  0%   { width: 0; height: 0; opacity: var(--ring-o); }
+  100% { width: var(--pd-ring-size); height: var(--pd-ring-size); opacity: 0; }
 }
 
 body {
@@ -315,20 +374,27 @@ textarea {
   display: block;
   width: 100%;
   height: 100%;
+  transform-origin: 50% 100%;
 }
-.frame-pumpkin-inner.rolling-left {
-  animation: pumpkin-roll-left 0.8s ease-in forwards;
+.frame-pumpkin.is-smashed { cursor: var(--cursor-auto); }
+.frame-pumpkin-inner.splat-pop {
+  animation: splat-pop 0.14s ease-out;
 }
-.frame-pumpkin-inner.rolling-right {
-  animation: pumpkin-roll-right 0.8s ease-in forwards;
+@keyframes splat-pop {
+  0%   { transform: scale(0.5, 0.35); }
+  100% { transform: scale(1, 1); }
 }
-@keyframes pumpkin-roll-left {
-  0% { transform: translateX(0) rotate(0deg); }
-  100% { transform: translateX(-130vw) rotate(-720deg); }
+.frame-chunk {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 2px;
+  pointer-events: none;
+  animation: chunk-fly 0.6s cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
 }
-@keyframes pumpkin-roll-right {
-  0% { transform: translateX(0) rotate(0deg); }
-  100% { transform: translateX(130vw) rotate(720deg); }
+@keyframes chunk-fly {
+  0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.4); opacity: 0; }
 }
 
 .frame-lights {
