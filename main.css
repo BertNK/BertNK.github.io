@@ -74,6 +74,53 @@ html::-webkit-scrollbar {
   display: none;
 }
 
+/* ---------------------------------------------------
+   Load-in reveal: page starts as pure background colour, then a
+   soft ripple opens from a focal point and uncovers everything
+--------------------------------------------------- */
+@property --reveal-r {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: -4%;
+}
+
+#preload-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background-color: var(--bg, #E9EFE9);
+  background-image: radial-gradient(
+    circle farthest-corner at 50% 42%,
+    transparent calc(var(--reveal-r) + 0.4%),
+    color-mix(in srgb, var(--accent, #0F6E6A) 20%, transparent) calc(var(--reveal-r) + 1%),
+    transparent calc(var(--reveal-r) + 1.9%),
+    transparent calc(var(--reveal-r) + 4.6%),
+    color-mix(in srgb, var(--accent, #0F6E6A) 9%, transparent) calc(var(--reveal-r) + 5.4%),
+    transparent calc(var(--reveal-r) + 6.4%)
+  );
+  -webkit-mask-image: radial-gradient(
+    circle farthest-corner at 50% 42%,
+    transparent var(--reveal-r),
+    #000 calc(var(--reveal-r) + 0.4%)
+  );
+  mask-image: radial-gradient(
+    circle farthest-corner at 50% 42%,
+    transparent var(--reveal-r),
+    #000 calc(var(--reveal-r) + 0.4%)
+  );
+  transition: --reveal-r 1.9s cubic-bezier(0.22, 0.6, 0.28, 1), opacity 0.6s ease 1.5s;
+  /* failsafe: never leave the page covered if scripts fail to run */
+  animation: curtain-failsafe 0.01s linear 12s forwards;
+}
+#preload-curtain.revealed {
+  --reveal-r: 112%;
+  opacity: 0;
+  pointer-events: none;
+}
+@keyframes curtain-failsafe {
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
 body {
   background-color: var(--bg);
   color: var(--text);
@@ -721,7 +768,7 @@ textarea {
 .scroll-hint {
   position: fixed;
   left: 50%;
-  bottom: 92px;
+  bottom: 138px;
   transform: translateX(-50%);
   z-index: 45;
   width: 40px;
@@ -755,7 +802,7 @@ textarea {
 }
 
 @media only screen and (min-width: 1500px) {
-  .scroll-hint { bottom: 118px; width: 48px; height: 48px; }
+  .scroll-hint { bottom: 178px; width: 48px; height: 48px; }
   .scroll-hint svg { width: 24px; height: 24px; }
 }
 

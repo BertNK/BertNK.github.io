@@ -1,4 +1,29 @@
 (function () {
+  // load-in reveal: wait for everything (assets + fonts), then one
+  // extra second of calm before the ripple opens
+  var curtain = document.getElementById('preload-curtain');
+
+  function revealPage() {
+    if (!curtain) return;
+    curtain.classList.add('revealed');
+    setTimeout(function () {
+      if (curtain.parentNode) curtain.parentNode.removeChild(curtain);
+    }, 2700);
+  }
+
+  function scheduleReveal() {
+    var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    fontsReady.catch(function () {}).then(function () {
+      setTimeout(revealPage, 1000);
+    });
+  }
+
+  if (document.readyState === 'complete') {
+    scheduleReveal();
+  } else {
+    window.addEventListener('load', scheduleReveal);
+  }
+
   var root = document.documentElement;
   var toggleBtn = document.getElementById('theme-toggle');
   var STORAGE_KEY = 'bert-portfolio-theme';
@@ -20,6 +45,47 @@
   }
 
   applyTheme(getPreferredTheme());
+
+  // smoother mouse-wheel scrolling: ease toward the accumulated target
+  // instead of jumping in the browser's default per-notch steps
+  (function setupSmoothWheel() {
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    var targetY = window.scrollY;
+    var animating = false;
+    var maxScroll = function () {
+      return document.documentElement.scrollHeight - window.innerHeight;
+    };
+
+    function step() {
+      var current = window.scrollY;
+      var diff = targetY - current;
+      if (Math.abs(diff) < 0.5) {
+        window.scrollTo(0, targetY);
+        animating = false;
+        return;
+      }
+      window.scrollTo(0, current + diff * 0.18);
+      requestAnimationFrame(step);
+    }
+
+    window.addEventListener('wheel', function (e) {
+      // let pinch-zoom / modifier scrolling behave natively
+      if (e.ctrlKey) return;
+      e.preventDefault();
+      if (!animating) targetY = window.scrollY; // resync after any programmatic scroll
+      targetY = Math.max(0, Math.min(maxScroll(), targetY + e.deltaY));
+      if (!animating) {
+        animating = true;
+        requestAnimationFrame(step);
+      }
+    }, { passive: false });
+
+    window.addEventListener('resize', function () {
+      targetY = Math.max(0, Math.min(maxScroll(), targetY));
+    });
+  })();
 
   if (toggleBtn) {
     toggleBtn.addEventListener('click', function () {

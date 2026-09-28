@@ -9,8 +9,26 @@
     <link rel="stylesheet" href="main.css">
     <link rel="icon" type="image/x-icon" href="/src/retro.png">
     <title>Bert</title>
+    <script>
+      // apply the saved/system theme before first paint so the load-in
+      // curtain matches the page background from the very first frame
+      (function () {
+        try {
+          var s = localStorage.getItem('bert-portfolio-theme');
+          var t = (s === 'light' || s === 'dark')
+            ? s
+            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+    <noscript><style>#preload-curtain { display: none !important; }</style></noscript>
 </head>
 <body>
+
+    <div id="preload-curtain" aria-hidden="true"></div>
 
     <!-- Seasonal decorations toggle -->
     <button id="season-toggle" class="theme-toggle season-toggle" aria-label="Seasonal decorations: off">
