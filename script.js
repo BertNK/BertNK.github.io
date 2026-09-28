@@ -221,9 +221,7 @@
         lights.className = 'frame-deco frame-lights';
         lights.innerHTML = '<span class="wire"></span>';
         for (var i = 0; i < 11; i += 1) {
-          var bulb = document.createElement('span');
-          bulb.className = 'bulb';
-          lights.appendChild(bulb);
+          lights.appendChild(createBulb(index + '-' + i));
         }
         win.appendChild(lights);
       }
@@ -257,11 +255,13 @@
     inner.classList.add('splat-pop');
     spawnChunks(outer);
     playSplash();
+    checkPumpkinBoss();
   }
 
-  function spawnChunks(outer) {
+  function spawnChunks(outer, count) {
     var colors = ['#e07020', '#f08a38', '#c75a12', '#f6dfb0'];
-    for (var i = 0; i < 10; i += 1) {
+    var total = count || 10;
+    for (var i = 0; i < total; i += 1) {
       var chunk = document.createElement('span');
       chunk.className = 'frame-chunk';
       var angle = Math.random() * Math.PI * 2;
@@ -328,8 +328,469 @@
     }
   }
 
+  // ---------------------------------------------------------------
+  // shared audio: one context reused for lots of tiny sounds (bulbs,
+  // taps) so rapid clicking never runs into the browser's context limit
+  // ---------------------------------------------------------------
+  var sharedAudio = null;
+  function getAudioCtx() {
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      if (!sharedAudio) sharedAudio = new Ctx();
+      if (sharedAudio.state === 'suspended') sharedAudio.resume();
+      return sharedAudio;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function noiseBuffer(ctx, seconds, power) {
+    var len = Math.floor(ctx.sampleRate * seconds);
+    var buffer = ctx.createBuffer(1, len, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for (var i = 0; i < len; i += 1) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, power);
+    }
+    return buffer;
+  }
+
+  // tiny glassy tick + a short ring
+  function playBulbPop() {
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    try {
+      var t0 = ctx.currentTime;
+      var src = ctx.createBufferSource();
+      src.buffer = noiseBuffer(ctx, 0.05, 3);
+      var hp = ctx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 2500;
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.2, t0);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.05);
+      src.connect(hp);
+      hp.connect(g);
+      g.connect(ctx.destination);
+      src.start(t0);
+
+      var o = ctx.createOscillator();
+      var og = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(2400, t0);
+      o.frequency.exponentialRampToValueAtTime(1500, t0 + 0.12);
+      og.gain.setValueAtTime(0.0001, t0);
+      og.gain.exponentialRampToValueAtTime(0.08, t0 + 0.005);
+      og.gain.exponentialRampToValueAtTime(0.001, t0 + 0.14);
+      o.connect(og);
+      og.connect(ctx.destination);
+      o.start(t0);
+      o.stop(t0 + 0.16);
+    } catch (e) {}
+  }
+
+  // ---------------------------------------------------------------
+  // christmas lights: press a bulb and it breaks, stays broken until
+  // the page is refreshed (even if the season is switched off and on)
+  // ---------------------------------------------------------------
+  var brokenBulbs = {};
+
+  function createBulb(key) {
+    var bulb = document.createElement('span');
+    bulb.className = 'bulb';
+    if (brokenBulbs[key]) {
+      bulb.classList.add('is-broken');
+    } else {
+      bulb.addEventListener('click', function () { breakBulb(bulb, key); });
+    }
+    return bulb;
+  }
+
+  function breakBulb(bulb, key) {
+    if (brokenBulbs[key]) return;
+    brokenBulbs[key] = true;
+    var color = window.getComputedStyle(bulb).backgroundColor;
+    bulb.classList.add('is-broken');
+    spawnShards(bulb, color);
+    playBulbPop();
+  }
+
+  // glass shards go on the parent strip (the broken bulb is clipped)
+  function spawnShards(bulb, color) {
+    var strip = bulb.parentNode;
+    if (!strip) return;
+    var colors = [color, '#ffffff', color, 'rgba(255,255,255,0.75)'];
+    for (var i = 0; i < 7; i += 1) {
+      var shard = document.createElement('span');
+      shard.className = 'bulb-shard';
+      var size = 2 + Math.random() * 2.5;
+      shard.style.width = size + 'px';
+      shard.style.height = size + 'px';
+      shard.style.left = (bulb.offsetLeft + bulb.offsetWidth / 2) + 'px';
+      shard.style.top = (bulb.offsetTop + 4) + 'px';
+      shard.style.background = colors[i % colors.length];
+      shard.style.setProperty('--dx', ((Math.random() - 0.5) * 30) + 'px');
+      shard.style.setProperty('--dy', (8 + Math.random() * 20) + 'px');
+      shard.style.setProperty('--rot', ((Math.random() - 0.5) * 540) + 'deg');
+      strip.appendChild(shard);
+      (function (el) {
+        setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 650);
+      })(shard);
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // giant pumpkin: once every frame pumpkin is smashed, a big one
+  // shows up - tap it 100 times before the clock runs out
+  // ---------------------------------------------------------------
+  var BOSS_TAPS = 100;
+  var BOSS_TIME_MS = 15000;
+  var bossDone = false;      // defeated or skipped - stays until refresh
+  var bossPending = false;
+  var boss = null;
+
+  function currentSeasonName() {
+    return root.getAttribute('data-season') || 'none';
+  }
+
+  function allFramePumpkinsSmashed() {
+    var frames = document.querySelectorAll('.retro-window');
+    if (!frames.length) return false;
+    for (var i = 0; i < frames.length; i += 1) {
+      if (!smashedPumpkins[i + '-left'] || !smashedPumpkins[i + '-right']) return false;
+    }
+    return true;
+  }
+
+  function checkPumpkinBoss() {
+    if (bossDone || bossPending || boss) return;
+    if (currentSeasonName() !== 'halloween' || !allFramePumpkinsSmashed()) return;
+    bossPending = true;
+    // a beat, so the last splat can be seen first
+    setTimeout(function () {
+      bossPending = false;
+      if (bossDone || boss) return;
+      if (currentSeasonName() !== 'halloween' || !allFramePumpkinsSmashed()) return;
+      startPumpkinBoss();
+    }, 900);
+  }
+
+  function abortBoss() {
+    if (boss) boss.cleanup(false);
+  }
+
+  function bossCracksSVG() {
+    return (
+      '<svg viewBox="0 0 40 36" aria-hidden="true">' +
+      '<path class="crack-1" d="M20 9l-1.8 5 2.6 3.4-1.6 5.2"/>' +
+      '<path class="crack-2" d="M11.5 14.5l3 3.5-2 4.5M28.5 14.5l-3 3.6 2 4.4"/>' +
+      '<path class="crack-3" d="M8 21l5 1.5M32 21l-5 2M19.5 26l2.5 4.5-2.5 2.5"/>' +
+      '</svg>'
+    );
+  }
+
+  function bossTick(progress) {
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    try {
+      var t0 = ctx.currentTime;
+      var o = ctx.createOscillator();
+      var g = ctx.createGain();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(240 + progress * 520, t0);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.07, t0 + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.06);
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start(t0);
+      o.stop(t0 + 0.07);
+    } catch (e) {}
+  }
+
+  // a dull crack when the pumpkin gets another fracture
+  function bossCrackSound() {
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    try {
+      var t0 = ctx.currentTime;
+      var src = ctx.createBufferSource();
+      src.buffer = noiseBuffer(ctx, 0.14, 2);
+      var lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 1800;
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.24, t0);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.14);
+      src.connect(lp);
+      lp.connect(g);
+      g.connect(ctx.destination);
+      src.start(t0);
+    } catch (e) {}
+  }
+
+  function bossFailSound() {
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    try {
+      var t0 = ctx.currentTime;
+      var o = ctx.createOscillator();
+      var g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(320, t0);
+      o.frequency.exponentialRampToValueAtTime(110, t0 + 0.4);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.1, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.42);
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start(t0);
+      o.stop(t0 + 0.45);
+    } catch (e) {}
+  }
+
+  // big low-passed boom with a deep thump under it
+  function bossExplosionSound() {
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    try {
+      var t0 = ctx.currentTime;
+      var src = ctx.createBufferSource();
+      src.buffer = noiseBuffer(ctx, 1.1, 1.6);
+      var lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.setValueAtTime(3200, t0);
+      lp.frequency.exponentialRampToValueAtTime(90, t0 + 1.0);
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.42, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + 1.05);
+      src.connect(lp);
+      lp.connect(g);
+      g.connect(ctx.destination);
+      src.start(t0);
+
+      var o = ctx.createOscillator();
+      var og = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(110, t0);
+      o.frequency.exponentialRampToValueAtTime(28, t0 + 0.6);
+      og.gain.setValueAtTime(0.0001, t0);
+      og.gain.exponentialRampToValueAtTime(0.5, t0 + 0.02);
+      og.gain.exponentialRampToValueAtTime(0.001, t0 + 0.65);
+      o.connect(og);
+      og.connect(ctx.destination);
+      o.start(t0);
+      o.stop(t0 + 0.7);
+    } catch (e) {}
+  }
+
+  function startPumpkinBoss() {
+    var count = 0;
+    var state = 'idle';        // idle -> running -> done, or running -> failing -> idle
+    var deadline = 0;
+    var ticker = null;
+    var failTimer = null;
+    var finishTimer = null;
+    var stage = 0;
+
+    var el = document.createElement('div');
+    el.className = 'boss-overlay is-idle';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-label', 'Giant pumpkin: tap it ' + BOSS_TAPS + ' times');
+    el.innerHTML =
+      '<button type="button" class="boss-skip">skip</button>' +
+      '<div class="boss-title">GIANT PUMPKIN!</div>' +
+      '<button type="button" class="boss-pumpkin" aria-label="Tap the giant pumpkin">' +
+        '<span class="boss-art">' + pumpkinSVG() + '</span>' +
+        '<span class="boss-cracks">' + bossCracksSVG() + '</span>' +
+      '</button>' +
+      '<div class="boss-hud">' +
+        '<div class="boss-bar"><span class="boss-bar-fill"></span></div>' +
+        '<div class="boss-meta"><span class="boss-count">0 / ' + BOSS_TAPS + '</span><span class="boss-time">' + (BOSS_TIME_MS / 1000).toFixed(1) + 's</span></div>' +
+        '<div class="boss-hint">Tap it ' + BOSS_TAPS + ' times! The clock starts on your first tap.</div>' +
+      '</div>' +
+      '<div class="boss-flash"></div>';
+    document.body.appendChild(el);
+
+    var btn = el.querySelector('.boss-pumpkin');
+    var art = el.querySelector('.boss-art');
+    var fill = el.querySelector('.boss-bar-fill');
+    var countEl = el.querySelector('.boss-count');
+    var timeEl = el.querySelector('.boss-time');
+    var titleEl = el.querySelector('.boss-title');
+    var hintEl = el.querySelector('.boss-hint');
+    var skipBtn = el.querySelector('.boss-skip');
+
+    // fog and bats step aside, and the page behind stops scrolling
+    if (seasonOverlay) seasonOverlay.classList.add('qte-on');
+    root.classList.add('qte-lock');
+    try { btn.focus({ preventScroll: true }); } catch (e) {}
+
+    function setProgress() {
+      fill.style.width = (count / BOSS_TAPS * 100) + '%';
+      countEl.textContent = count + ' / ' + BOSS_TAPS;
+      var next = count >= BOSS_TAPS * 0.7 ? 3 : count >= BOSS_TAPS * 0.45 ? 2 : count >= BOSS_TAPS * 0.2 ? 1 : 0;
+      if (next !== stage) {
+        btn.classList.remove('stage-1', 'stage-2', 'stage-3');
+        if (next > 0) btn.classList.add('stage-' + next);
+        if (next > stage) bossCrackSound();
+        stage = next;
+      }
+    }
+
+    function squash() {
+      if (!art.animate) return;
+      var tilt = Math.random() * 6 - 3;
+      art.animate([
+        { transform: 'scale(1) rotate(0deg)' },
+        { transform: 'scale(0.92, 0.88) rotate(' + tilt + 'deg)' },
+        { transform: 'scale(1) rotate(0deg)' }
+      ], { duration: 90, easing: 'ease-out' });
+    }
+
+    function tick() {
+      var left = deadline - Date.now();
+      if (left <= 0) { fail(); return; }
+      timeEl.textContent = (left / 1000).toFixed(1) + 's';
+      timeEl.classList.toggle('is-low', left < 4000);
+    }
+
+    function fail() {
+      clearInterval(ticker);
+      ticker = null;
+      state = 'failing';
+      titleEl.textContent = 'TOO SLOW!';
+      titleEl.classList.add('is-fail');
+      hintEl.textContent = 'It healed itself. Try again!';
+      timeEl.textContent = '0.0s';
+      bossFailSound();
+      failTimer = setTimeout(function () {
+        if (state !== 'failing') return;
+        count = 0;
+        stage = 0;
+        btn.classList.remove('stage-1', 'stage-2', 'stage-3');
+        setProgress();
+        timeEl.textContent = (BOSS_TIME_MS / 1000).toFixed(1) + 's';
+        timeEl.classList.remove('is-low');
+        titleEl.textContent = 'GIANT PUMPKIN!';
+        titleEl.classList.remove('is-fail');
+        hintEl.textContent = 'Tap it ' + BOSS_TAPS + ' times! The clock starts on your first tap.';
+        el.classList.add('is-idle');
+        state = 'idle';
+      }, 1300);
+    }
+
+    function hit() {
+      if (state === 'done' || state === 'failing') return;
+      if (state === 'idle') {
+        state = 'running';
+        el.classList.remove('is-idle');
+        deadline = Date.now() + BOSS_TIME_MS;
+        titleEl.textContent = 'SMASH IT!';
+        hintEl.textContent = 'Keep tapping!';
+        ticker = setInterval(tick, 100);
+      } else if (Date.now() > deadline) {
+        fail();
+        return;
+      }
+      count += 1;
+      setProgress();
+      squash();
+      bossTick(count / BOSS_TAPS);
+      if (count % 2 === 0) spawnChunks(btn, 3);
+      if (count >= BOSS_TAPS) explode();
+    }
+
+    function explode() {
+      state = 'done';
+      clearInterval(ticker);
+      ticker = null;
+      titleEl.textContent = 'SMASHED!';
+      hintEl.textContent = '';
+      timeEl.classList.remove('is-low');
+
+      var rect = btn.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+
+      btn.classList.add('is-exploding');
+      el.querySelector('.boss-flash').classList.add('go');
+      el.classList.add('is-shaking');
+      bossExplosionSound();
+
+      var shock = document.createElement('span');
+      shock.className = 'boss-shock';
+      shock.style.left = cx + 'px';
+      shock.style.top = cy + 'px';
+      el.appendChild(shock);
+
+      var colors = ['#e07020', '#f08a38', '#c75a12', '#f6dfb0', '#3d7a32'];
+      var reach = Math.min(window.innerWidth, 760) * 0.45;
+      for (var i = 0; i < 46; i += 1) {
+        var chunk = document.createElement('span');
+        chunk.className = 'boss-chunk';
+        var angle = Math.random() * Math.PI * 2;
+        var dist = 90 + Math.random() * reach;
+        var size = 6 + Math.random() * 12;
+        chunk.style.left = cx + 'px';
+        chunk.style.top = cy + 'px';
+        chunk.style.width = size + 'px';
+        chunk.style.height = (size * (0.6 + Math.random() * 0.6)) + 'px';
+        chunk.style.background = colors[i % colors.length];
+        chunk.style.borderRadius = (i % 3 === 0 ? '50%' : '2px');
+        chunk.style.setProperty('--dx', (Math.cos(angle) * dist) + 'px');
+        chunk.style.setProperty('--dy', (Math.sin(angle) * dist * 0.85 + 40 + Math.random() * 110) + 'px');
+        chunk.style.setProperty('--rot', ((Math.random() - 0.5) * 900) + 'deg');
+        el.appendChild(chunk);
+      }
+
+      finishTimer = setTimeout(function () { cleanup(true); }, 1700);
+    }
+
+    // done = the event is over for good (smashed or skipped)
+    function cleanup(done) {
+      clearInterval(ticker);
+      clearTimeout(failTimer);
+      clearTimeout(finishTimer);
+      document.removeEventListener('keydown', onKey);
+      var wasBoss = boss;
+      boss = null;
+      if (done) bossDone = true;
+      if (seasonOverlay) seasonOverlay.classList.remove('qte-on');
+      root.classList.remove('qte-lock');
+      if (done && wasBoss) {
+        el.classList.add('is-leaving');
+        setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 520);
+      } else if (el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
+    }
+
+    function onKey(e) {
+      if (e.key === 'Escape') { cleanup(true); }
+    }
+
+    btn.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      hit();
+    });
+    btn.addEventListener('keydown', function (e) {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        if (!e.repeat) hit();
+      }
+    });
+    skipBtn.addEventListener('click', function () { cleanup(true); });
+    document.addEventListener('keydown', onKey);
+
+    boss = { el: el, cleanup: cleanup };
+  }
+
   function renderSeason(season) {
     if (!seasonOverlay) return;
+    abortBoss();
     seasonOverlay.innerHTML = '';
     decorateFrames(season);
 
@@ -365,6 +826,7 @@
         bat.style.animationDelay = (Math.random() * -12) + 's';
         seasonOverlay.appendChild(bat);
       }
+      checkPumpkinBoss();
     }
   }
 
@@ -420,8 +882,38 @@
     scrollHint.hidden = true;
   }
 
+  // nav auto-hide: after 30s with no activity the nav fades away. Only
+  // scrolling (wheel, touch-drag, keys) or pressing the arrow brings it back;
+  // other input (mouse, taps, typing) just keeps it from hiding.
+  var NAV_IDLE_MS = 30000;
+  var navIdleTimer = null;
+
+  function restartNavIdleTimer() {
+    clearTimeout(navIdleTimer);
+    navIdleTimer = setTimeout(function () { root.classList.add('nav-idle'); }, NAV_IDLE_MS);
+  }
+
+  function showNav() {
+    root.classList.remove('nav-idle');
+    restartNavIdleTimer();
+  }
+
+  function noteActivity() {
+    if (root.classList.contains('nav-idle')) return;
+    restartNavIdleTimer();
+  }
+
+  ['pointerdown', 'mousemove', 'keydown'].forEach(function (evt) {
+    window.addEventListener(evt, noteActivity, { passive: true });
+  });
+  ['scroll', 'wheel', 'touchmove'].forEach(function (evt) {
+    window.addEventListener(evt, showNav, { passive: true });
+  });
+  restartNavIdleTimer();
+
   if (scrollHint) {
     scrollHint.addEventListener('click', function () {
+      showNav();
       var idx = SECTION_ORDER.indexOf(currentSectionId);
       var nextId = idx > -1 ? SECTION_ORDER[idx + 1] : null;
       var nextEl = nextId ? document.getElementById(nextId) : null;
@@ -655,7 +1147,7 @@
         dropScore(spot.x, spot.y);
         if (index === spots.length - 1) {
           playLevelUp();
-          dropLevelUp(baseX, heroY - 24);
+          dropLevelUp(baseX, Math.max(8, heroY - 62));
         }
       });
       i += 1;
