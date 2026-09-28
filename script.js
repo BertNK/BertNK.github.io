@@ -46,56 +46,6 @@
 
   applyTheme(getPreferredTheme());
 
-  // smoother mouse-wheel scrolling: ease toward the accumulated target
-  // instead of jumping in the browser's default per-notch steps
-  (function setupSmoothWheel() {
-    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
-
-    var targetY = window.scrollY;
-    var animating = false;
-    var maxScroll = function () {
-      return document.documentElement.scrollHeight - window.innerHeight;
-    };
-
-    function step() {
-      var current = window.scrollY;
-      var diff = targetY - current;
-      if (Math.abs(diff) < 0.5) {
-        window.scrollTo(0, targetY);
-        animating = false;
-        return;
-      }
-      window.scrollTo(0, current + diff * 0.18);
-      requestAnimationFrame(step);
-    }
-
-    window.addEventListener('wheel', function (e) {
-      // let pinch-zoom / modifier scrolling behave natively
-      if (e.ctrlKey) return;
-      e.preventDefault();
-      if (!animating) targetY = window.scrollY; // resync after any programmatic scroll
-      targetY = Math.max(0, Math.min(maxScroll(), targetY + e.deltaY));
-      if (!animating) {
-        animating = true;
-        requestAnimationFrame(step);
-      }
-    }, { passive: false });
-
-    window.addEventListener('resize', function () {
-      targetY = Math.max(0, Math.min(maxScroll(), targetY));
-    });
-  })();
-
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', function () {
-      var current = root.getAttribute('data-theme');
-      var next = current === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
-    });
-  }
-
   // keep following the system/browser color scheme live, as long as
   // the person hasn't explicitly picked a theme themselves
   if (window.matchMedia) {
