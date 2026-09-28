@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#E9EFE9">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -11,24 +13,32 @@
     <title>Bert</title>
     <script>
       // apply the saved/system theme before first paint so the load-in
-      // curtain matches the page background from the very first frame
+      // curtain matches the page background from the very first frame.
+      // storage access is guarded on its own so a blocked/throwing storage
+      // still falls back to the browser's light/dark preference
       (function () {
-        try {
-          var s = localStorage.getItem('bert-portfolio-theme');
-          var t = (s === 'light' || s === 'dark')
-            ? s
-            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-          document.documentElement.setAttribute('data-theme', t);
-        } catch (e) {
-          document.documentElement.setAttribute('data-theme', 'light');
-        }
+        var stored = null;
+        try { stored = localStorage.getItem('bert-portfolio-theme'); } catch (e) {}
+        var dark = false;
+        try { dark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) {}
+        var t = (stored === 'light' || stored === 'dark') ? stored : (dark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t);
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute('content', t === 'dark' ? '#0E1418' : '#E9EFE9');
       })();
     </script>
-    <noscript><style>#preload-curtain { display: none !important; }</style></noscript>
+    <noscript><style>#preload-curtain, #preload-drop { display: none !important; }</style></noscript>
 </head>
 <body>
 
     <div id="preload-curtain" aria-hidden="true"></div>
+    <div id="preload-drop" aria-hidden="true">
+      <svg class="pd-drop" viewBox="0 0 20 30"><path d="M10 1C10 1 1 13.5 1 20a9 9 0 0 0 18 0C19 13.5 10 1 10 1z" fill="currentColor"/></svg>
+      <span class="pd-ring"></span>
+      <span class="pd-ring"></span>
+      <span class="pd-ring"></span>
+      <span class="pd-ring"></span>
+    </div>
 
     <!-- Seasonal decorations toggle -->
     <button id="season-toggle" class="theme-toggle season-toggle" aria-label="Seasonal decorations: off">
