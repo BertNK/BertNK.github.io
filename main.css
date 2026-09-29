@@ -252,6 +252,18 @@ textarea {
 .season-toggle {
   right: 70px;
 }
+/* language toggle sits to the left of the season + theme buttons */
+.lang-toggle {
+  right: 122px;
+}
+.lang-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  pointer-events: none;
+}
 .season-icon {
   width: 20px;
   height: 20px;
@@ -1233,6 +1245,7 @@ html.nav-idle .rail {
 
   .theme-toggle { top: 14px; right: 14px; width: 38px; height: 38px; }
   .season-toggle { right: 60px; }
+  .lang-toggle { right: 106px; }
 }
 
 @media only screen and (max-width: 420px) {
