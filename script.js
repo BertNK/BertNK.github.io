@@ -87,8 +87,192 @@
     if (toggleBtn) {
       var isDark = theme === 'dark';
       toggleBtn.setAttribute('aria-pressed', String(isDark));
-      toggleBtn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+      toggleBtn.setAttribute('aria-label', isDark ? t('theme.toLight') : t('theme.toDark'));
     }
+  }
+
+  // ---------------------------------------------------------------
+  // language (EN / NL): a saved pick wins, otherwise follow the
+  // browser/system language. Static text is tagged in index.html with
+  // data-i18n (text), data-i18n-html (text with highlight spans),
+  // data-i18n-aria / -alt / -title (attributes); dynamic text uses t().
+  // ---------------------------------------------------------------
+  var LANG_KEY = 'bert-portfolio-lang';
+  var I18N = {
+    en: {
+      'common.close': 'Close',
+      'nav.aria': 'Section navigation',
+      'nav.home': 'Home', 'nav.about': 'About', 'nav.skills': 'Skills',
+      'nav.hobbies': 'Hobbies', 'nav.contact': 'Contact',
+      'hero.eyebrow': '01 // Software Developer',
+      'hero.hello': 'Hello, my name is',
+      'hero.nameTitle': 'try clicking me three times',
+      'hero.iam': 'I am a',
+      'hero.role': ' Software Developer',
+      'hero.ctaAbout': 'About me',
+      'hero.ctaContact': 'Contact Me',
+      'about.eyebrow': '02 // Profile',
+      'about.title': 'About Me',
+      'about.p1': 'Hi, I\'m <span class="highlight">Bert</span>, a student <span class="highlight">Software Developer</span> at the <span class="highlight">ROC Technovium</span> in Nijmegen.',
+      'about.p2': 'I love working on websites with <span class="highlight">VueJS/Javascript</span>',
+      'about.img': 'Laptop on a desk',
+      'skills.eyebrow': '03 // Stack',
+      'skills.title': 'Skills',
+      'skills.p1': 'My strongest skill is Back-End, working with frameworks/languages like',
+      'skills.img': 'Skills illustration',
+      'hobbies.eyebrow': '04 // Off the clock',
+      'hobbies.title': 'Hobbies',
+      'hobbies.p1': 'In my free time I test software and work with',
+      'hobbies.p2a': 'Click',
+      'hobbies.p2link': 'me',
+      'hobbies.p2b': 'to learn more about my skills',
+      'contact.eyebrow': '05 // Say hello',
+      'contact.title': 'Get in Touch',
+      'contact.p1': 'Want to connect with me?',
+      'contact.p2a': 'Reach out via',
+      'contact.p2b': 'or',
+      'contact.p2email': 'Email!',
+      'contact.iconEmail': 'Email',
+      'mail.title': 'new message',
+      'mail.to': 'to:',
+      'mail.copy': 'Copy email address',
+      'mail.copied': 'copied',
+      'mail.name': 'Your name',
+      'mail.email': 'Your email',
+      'mail.message': 'Message',
+      'mail.send': 'Send',
+      'mail.hint': 'opens your email app',
+      'confirm.title': 'Leaving this site',
+      'confirm.default': 'This will open a new page.',
+      'confirm.msg': 'This will open a new page to {label}.',
+      'confirm.label.linkedin': 'LinkedIn',
+      'confirm.label.github': 'GitHub',
+      'confirm.label.chamsys': 'the official Chamsys website',
+      'confirm.continue': 'Continue',
+      'confirm.cancel': 'Cancel',
+      'scrollHint.aria': 'Scroll to next section',
+      'theme.toLight': 'Switch to light mode',
+      'theme.toDark': 'Switch to dark mode',
+      'season.aria': 'Seasonal decorations: {state}',
+      'season.none': 'off', 'season.christmas': 'christmas', 'season.halloween': 'halloween',
+      'lang.switch': 'Switch language to Dutch',
+      'boss.skip': 'skip',
+      'boss.title': 'GIANT PUMPKIN!',
+      'boss.aria': 'Giant pumpkin: tap it {n} times',
+      'boss.tapAria': 'Tap the giant pumpkin',
+      'boss.hint': 'Tap it {n} times! The clock starts on your first tap.',
+      'boss.tooSlow': 'TOO SLOW!',
+      'boss.healed': 'It healed itself. Try again!',
+      'boss.smashIt': 'SMASH IT!',
+      'boss.keepTapping': 'Keep tapping!',
+      'boss.smashed': 'SMASHED!',
+      'egg.levelUp': 'LEVEL UP +1'
+    },
+    nl: {
+      'common.close': 'Sluiten',
+      'nav.aria': 'Sectienavigatie',
+      'nav.home': 'Home', 'nav.about': 'Over mij', 'nav.skills': 'Vaardigheden',
+      'nav.hobbies': 'Hobby\'s', 'nav.contact': 'Contact',
+      'hero.eyebrow': '01 // Softwareontwikkelaar',
+      'hero.hello': 'Hallo, mijn naam is',
+      'hero.nameTitle': 'probeer drie keer op me te klikken',
+      'hero.iam': 'Ik ben een',
+      'hero.role': ' Softwareontwikkelaar',
+      'hero.ctaAbout': 'Over mij',
+      'hero.ctaContact': 'Neem contact op',
+      'about.eyebrow': '02 // Profiel',
+      'about.title': 'Over mij',
+      'about.p1': 'Hoi, ik ben <span class="highlight">Bert</span>, een student <span class="highlight">Softwareontwikkelaar</span> aan het <span class="highlight">ROC Technovium</span> in Nijmegen.',
+      'about.p2': 'Ik werk graag aan websites met <span class="highlight">VueJS/Javascript</span>',
+      'about.img': 'Laptop op een bureau',
+      'skills.eyebrow': '03 // Stack',
+      'skills.title': 'Vaardigheden',
+      'skills.p1': 'Mijn sterkste vaardigheid is back-end, waarbij ik werk met frameworks/talen zoals',
+      'skills.img': 'Illustratie van vaardigheden',
+      'hobbies.eyebrow': '04 // Buiten werktijd',
+      'hobbies.title': 'Hobby\'s',
+      'hobbies.p1': 'In mijn vrije tijd test ik software en werk ik met',
+      'hobbies.p2a': 'Klik op',
+      'hobbies.p2link': 'mij',
+      'hobbies.p2b': 'om meer te leren over mijn vaardigheden',
+      'contact.eyebrow': '05 // Zeg hallo',
+      'contact.title': 'Neem contact op',
+      'contact.p1': 'Wil je met me in contact komen?',
+      'contact.p2a': 'Neem contact op via',
+      'contact.p2b': 'of',
+      'contact.p2email': 'E-mail!',
+      'contact.iconEmail': 'E-mail',
+      'mail.title': 'nieuw bericht',
+      'mail.to': 'aan:',
+      'mail.copy': 'E-mailadres kopiëren',
+      'mail.copied': 'gekopieerd',
+      'mail.name': 'Je naam',
+      'mail.email': 'Je e-mailadres',
+      'mail.message': 'Bericht',
+      'mail.send': 'Verzenden',
+      'mail.hint': 'opent je e-mailapp',
+      'confirm.title': 'Je verlaat deze site',
+      'confirm.default': 'Dit opent een nieuwe pagina.',
+      'confirm.msg': 'Dit opent een nieuwe pagina naar {label}.',
+      'confirm.label.linkedin': 'LinkedIn',
+      'confirm.label.github': 'GitHub',
+      'confirm.label.chamsys': 'de officiële Chamsys-website',
+      'confirm.continue': 'Doorgaan',
+      'confirm.cancel': 'Annuleren',
+      'scrollHint.aria': 'Scroll naar de volgende sectie',
+      'theme.toLight': 'Schakel over naar lichte modus',
+      'theme.toDark': 'Schakel over naar donkere modus',
+      'season.aria': 'Seizoensdecoratie: {state}',
+      'season.none': 'uit', 'season.christmas': 'kerst', 'season.halloween': 'halloween',
+      'lang.switch': 'Schakel over naar Engels',
+      'boss.skip': 'overslaan',
+      'boss.title': 'REUZENPOMPOEN!',
+      'boss.aria': 'Reuzenpompoen: tik er {n} keer op',
+      'boss.tapAria': 'Tik op de reuzenpompoen',
+      'boss.hint': 'Tik er {n} keer op! De klok start bij je eerste tik.',
+      'boss.tooSlow': 'TE LANGZAAM!',
+      'boss.healed': 'Hij is vanzelf genezen. Probeer het opnieuw!',
+      'boss.smashIt': 'SLA HEM KAPOT!',
+      'boss.keepTapping': 'Blijf tikken!',
+      'boss.smashed': 'KAPOTGESLAGEN!',
+      'egg.levelUp': 'LEVEL UP +1'
+    }
+  };
+
+  function systemLanguage() {
+    try {
+      var list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'en'];
+      return String(list[0] || 'en').toLowerCase().indexOf('nl') === 0 ? 'nl' : 'en';
+    } catch (e) {
+      return 'en';
+    }
+  }
+
+  var userPickedLang = false;
+  function getPreferredLang() {
+    var stored = readStored(LANG_KEY);
+    if (stored === 'en' || stored === 'nl') {
+      userPickedLang = true;
+      return stored;
+    }
+    return systemLanguage();
+  }
+
+  var currentLang = getPreferredLang();
+
+  function t(key, vars) {
+    var table = I18N[currentLang] || I18N.en;
+    var str = table[key];
+    if (str === undefined) str = I18N.en[key];
+    if (str === undefined) return key;
+    if (vars) {
+      Object.keys(vars).forEach(function (k) { str = str.split('{' + k + '}').join(vars[k]); });
+    }
+    return str;
+  }
+
+  function seasonAria(season) {
+    return t('season.aria', { state: t('season.' + season) });
   }
 
   applyTheme(getPreferredTheme());
@@ -146,7 +330,7 @@
   function applySeason(season) {
     root.setAttribute('data-season', season);
     if (seasonBtn) {
-      seasonBtn.setAttribute('aria-label', 'Seasonal decorations: ' + (season === 'none' ? 'off' : season));
+      seasonBtn.setAttribute('aria-label', seasonAria(season));
     }
     renderSeason(season);
   }
@@ -598,18 +782,18 @@
     el.className = 'boss-overlay is-idle';
     el.setAttribute('role', 'dialog');
     el.setAttribute('aria-modal', 'true');
-    el.setAttribute('aria-label', 'Giant pumpkin: tap it ' + BOSS_TAPS + ' times');
+    el.setAttribute('aria-label', t('boss.aria', { n: BOSS_TAPS }));
     el.innerHTML =
-      '<button type="button" class="boss-skip">skip</button>' +
-      '<div class="boss-title">GIANT PUMPKIN!</div>' +
-      '<button type="button" class="boss-pumpkin" aria-label="Tap the giant pumpkin">' +
+      '<button type="button" class="boss-skip">' + t('boss.skip') + '</button>' +
+      '<div class="boss-title">' + t('boss.title') + '</div>' +
+      '<button type="button" class="boss-pumpkin" aria-label="' + t('boss.tapAria') + '">' +
         '<span class="boss-art">' + pumpkinSVG() + '</span>' +
         '<span class="boss-cracks">' + bossCracksSVG() + '</span>' +
       '</button>' +
       '<div class="boss-hud">' +
         '<div class="boss-bar"><span class="boss-bar-fill"></span></div>' +
         '<div class="boss-meta"><span class="boss-count">0 / ' + BOSS_TAPS + '</span><span class="boss-time">' + (BOSS_TIME_MS / 1000).toFixed(1) + 's</span></div>' +
-        '<div class="boss-hint">Tap it ' + BOSS_TAPS + ' times! The clock starts on your first tap.</div>' +
+        '<div class="boss-hint">' + t('boss.hint', { n: BOSS_TAPS }) + '</div>' +
       '</div>' +
       '<div class="boss-flash"></div>';
     document.body.appendChild(el);
@@ -661,9 +845,9 @@
       clearInterval(ticker);
       ticker = null;
       state = 'failing';
-      titleEl.textContent = 'TOO SLOW!';
+      titleEl.textContent = t('boss.tooSlow');
       titleEl.classList.add('is-fail');
-      hintEl.textContent = 'It healed itself. Try again!';
+      hintEl.textContent = t('boss.healed');
       timeEl.textContent = '0.0s';
       bossFailSound();
       failTimer = setTimeout(function () {
@@ -674,9 +858,9 @@
         setProgress();
         timeEl.textContent = (BOSS_TIME_MS / 1000).toFixed(1) + 's';
         timeEl.classList.remove('is-low');
-        titleEl.textContent = 'GIANT PUMPKIN!';
+        titleEl.textContent = t('boss.title');
         titleEl.classList.remove('is-fail');
-        hintEl.textContent = 'Tap it ' + BOSS_TAPS + ' times! The clock starts on your first tap.';
+        hintEl.textContent = t('boss.hint', { n: BOSS_TAPS });
         el.classList.add('is-idle');
         state = 'idle';
       }, 1300);
@@ -688,8 +872,8 @@
         state = 'running';
         el.classList.remove('is-idle');
         deadline = Date.now() + BOSS_TIME_MS;
-        titleEl.textContent = 'SMASH IT!';
-        hintEl.textContent = 'Keep tapping!';
+        titleEl.textContent = t('boss.smashIt');
+        hintEl.textContent = t('boss.keepTapping');
         ticker = setInterval(tick, 100);
       } else if (Date.now() > deadline) {
         fail();
@@ -707,7 +891,7 @@
       state = 'done';
       clearInterval(ticker);
       ticker = null;
-      titleEl.textContent = 'SMASHED!';
+      titleEl.textContent = t('boss.smashed');
       hintEl.textContent = '';
       timeEl.classList.remove('is-low');
 
@@ -855,9 +1039,16 @@
   var dwellTimer = null;
   var currentSectionId = null;
 
+  // tab title follows the section in view (and the chosen language)
+  function updateTitle() {
+    var id = currentSectionId || 'home';
+    document.title = id === 'home' ? 'Bert' : 'Bert | ' + t('nav.' + id);
+  }
+
   function setActive(id) {
     if (id === currentSectionId) return;
     currentSectionId = id;
+    updateTitle();
 
     railItems.forEach(function (item) {
       item.classList.toggle('active', item.getAttribute('data-section') === id);
@@ -882,10 +1073,10 @@
     scrollHint.hidden = true;
   }
 
-  // nav auto-hide: after 30s with no activity the nav fades away. Only
+  // nav auto-hide: after 7.5s with no activity the nav fades away. Only
   // scrolling (wheel, touch-drag, keys) or pressing the arrow brings it back;
   // other input (mouse, taps, typing) just keeps it from hiding.
-  var NAV_IDLE_MS = 30000;
+  var NAV_IDLE_MS = 7500;
   var navIdleTimer = null;
 
   function restartNavIdleTimer() {
@@ -908,6 +1099,9 @@
   });
   ['scroll', 'wheel', 'touchmove'].forEach(function (evt) {
     window.addEventListener(evt, showNav, { passive: true });
+  });
+  document.querySelectorAll('.rail a').forEach(function (a) {
+    a.addEventListener('click', showNav);
   });
   restartNavIdleTimer();
 
@@ -1031,11 +1225,20 @@
   var confirmCancelBtn = document.getElementById('confirm-cancel-btn');
   var confirmCloseBtn = document.getElementById('confirm-close-btn');
   var pendingUrl = null;
+  var confirmLabelKey = null;
 
-  function openConfirm(url, label) {
+  function renderConfirmMessage() {
+    if (!confirmMessage) return;
+    confirmMessage.textContent = confirmLabelKey
+      ? t('confirm.msg', { label: t(confirmLabelKey) })
+      : t('confirm.default');
+  }
+
+  function openConfirm(url, labelKey) {
     if (!confirmBackdrop) return;
     pendingUrl = url;
-    if (confirmMessage) confirmMessage.textContent = 'This will open a new page to ' + label + '.';
+    confirmLabelKey = labelKey;
+    renderConfirmMessage();
     confirmBackdrop.hidden = false;
     requestAnimationFrame(function () { confirmBackdrop.classList.add('is-open'); });
     document.addEventListener('keydown', onConfirmKeydown);
@@ -1058,9 +1261,9 @@
   document.querySelectorAll('a[target="_blank"]').forEach(function (link) {
     var href = link.getAttribute('href') || '';
     var label = null;
-    if (href.indexOf('linkedin.com') !== -1) label = 'LinkedIn';
-    else if (href.indexOf('github.com') !== -1) label = 'GitHub';
-    else if (href.indexOf('chamsyslighting.com') !== -1) label = 'the official Chamsys website';
+    if (href.indexOf('linkedin.com') !== -1) label = 'confirm.label.linkedin';
+    else if (href.indexOf('github.com') !== -1) label = 'confirm.label.github';
+    else if (href.indexOf('chamsyslighting.com') !== -1) label = 'confirm.label.chamsys';
     if (!label) return;
     link.addEventListener('click', function (e) {
       e.preventDefault();
@@ -1081,6 +1284,55 @@
       if (e.target === confirmBackdrop) closeConfirm();
     });
   }
+
+  // apply the chosen language to everything tagged in the page and to the
+  // labels that are set from script (theme, season, confirm popup)
+  var langBtn = document.getElementById('lang-toggle');
+
+  function applyLanguage(lang) {
+    currentLang = lang;
+    root.setAttribute('lang', lang);
+
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      el.textContent = t(el.getAttribute('data-i18n'));
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+      el.innerHTML = t(el.getAttribute('data-i18n-html'));
+    });
+    [['data-i18n-aria', 'aria-label'], ['data-i18n-alt', 'alt'], ['data-i18n-title', 'title']].forEach(function (pair) {
+      document.querySelectorAll('[' + pair[0] + ']').forEach(function (el) {
+        el.setAttribute(pair[1], t(el.getAttribute(pair[0])));
+      });
+    });
+
+    applyTheme(currentTheme);
+    if (seasonBtn) seasonBtn.setAttribute('aria-label', seasonAria(root.getAttribute('data-season') || 'none'));
+    renderConfirmMessage();
+    updateTitle();
+
+    if (langBtn) {
+      var label = langBtn.querySelector('.lang-label');
+      if (label) label.textContent = lang.toUpperCase();
+      langBtn.setAttribute('aria-label', t('lang.switch'));
+    }
+  }
+
+  applyLanguage(currentLang);
+
+  if (langBtn) {
+    langBtn.addEventListener('click', function () {
+      var next = currentLang === 'nl' ? 'en' : 'nl';
+      userPickedLang = true;
+      applyLanguage(next);
+      writeStored(LANG_KEY, next);
+    });
+  }
+
+  // follow live browser-language changes until a language is picked
+  window.addEventListener('languagechange', function () {
+    if (userPickedLang) return;
+    applyLanguage(systemLanguage());
+  });
 
   // easter egg: click name, hero shoots 3 aliens above it, +1 each
   var nameEl = document.getElementById('hero-name');
@@ -1114,9 +1366,9 @@
     // left top, middle top, right top - all above the name
     var spreadX = window.innerWidth <= 768 ? 42 : 55;
     var spots = [
-      { x: baseX - spreadX, y: heroY - 70 },
-      { x: baseX, y: heroY - 95 },
-      { x: baseX + spreadX, y: heroY - 70 }
+      { x: baseX - spreadX, y: heroY - 105 },
+      { x: baseX, y: heroY - 130 },
+      { x: baseX + spreadX, y: heroY - 105 }
     ];
     var els = [];
 
@@ -1147,7 +1399,7 @@
         dropScore(spot.x, spot.y);
         if (index === spots.length - 1) {
           playLevelUp();
-          dropLevelUp(baseX, Math.max(8, heroY - 62));
+          dropLevelUp(baseX, Math.max(8, heroY - 100));
         }
       });
       i += 1;
@@ -1193,7 +1445,7 @@
   function dropLevelUp(x, y) {
     var el = document.createElement('div');
     el.className = 'egg-levelup';
-    el.textContent = 'LEVEL UP +1';
+    el.textContent = t('egg.levelUp');
     el.style.left = x + 'px';
     el.style.top = y + 'px';
     overlay.appendChild(el);

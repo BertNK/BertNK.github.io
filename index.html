@@ -47,6 +47,9 @@
       <svg class="season-icon season-icon-hall" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="14" rx="8" ry="7"/><path d="M12 7v3M10 7h4"/><path d="M8 13l2 1 2-2 2 2 2-1" fill="none"/></svg>
     </button>
 
+    <!-- Language toggle (EN / NL) -->
+    <button id="lang-toggle" class="theme-toggle lang-toggle" type="button" aria-label="Switch language to Dutch"><span class="lang-label">EN</span></button>
+
     <!-- Theme toggle -->
     <button id="theme-toggle" class="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
       <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><g stroke-width="2"><line x1="12" y1="1.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22.5" y2="12"/><line x1="4.4" y1="4.4" x2="6.8" y2="6.8"/><line x1="17.2" y1="17.2" x2="19.6" y2="19.6"/><line x1="4.4" y1="19.6" x2="6.8" y2="17.2"/><line x1="17.2" y1="6.8" x2="19.6" y2="4.4"/></g></svg>
@@ -54,25 +57,25 @@
     </button>
 
     <!-- Section navigation (timeline-style, used at every screen size) -->
-    <nav class="rail" aria-label="Section navigation">
+    <nav class="rail" aria-label="Section navigation" data-i18n-aria="nav.aria">
       <ol class="rail-list">
-        <li class="rail-item" data-section="home"><a href="#home"><span class="rail-index">01</span><span class="rail-label">Home</span><span class="rail-dot"></span></a></li>
-        <li class="rail-item" data-section="about"><a href="#about"><span class="rail-index">02</span><span class="rail-label">About</span><span class="rail-dot"></span></a></li>
-        <li class="rail-item" data-section="skills"><a href="#skills"><span class="rail-index">03</span><span class="rail-label">Skills</span><span class="rail-dot"></span></a></li>
-        <li class="rail-item" data-section="hobbies"><a href="#hobbies"><span class="rail-index">04</span><span class="rail-label">Hobbies</span><span class="rail-dot"></span></a></li>
-        <li class="rail-item" data-section="contact"><a href="#contact"><span class="rail-index">05</span><span class="rail-label">Contact</span><span class="rail-dot"></span></a></li>
+        <li class="rail-item" data-section="home"><a href="#home"><span class="rail-index">01</span><span class="rail-label" data-i18n="nav.home">Home</span><span class="rail-dot"></span></a></li>
+        <li class="rail-item" data-section="about"><a href="#about"><span class="rail-index">02</span><span class="rail-label" data-i18n="nav.about">About</span><span class="rail-dot"></span></a></li>
+        <li class="rail-item" data-section="skills"><a href="#skills"><span class="rail-index">03</span><span class="rail-label" data-i18n="nav.skills">Skills</span><span class="rail-dot"></span></a></li>
+        <li class="rail-item" data-section="hobbies"><a href="#hobbies"><span class="rail-index">04</span><span class="rail-label" data-i18n="nav.hobbies">Hobbies</span><span class="rail-dot"></span></a></li>
+        <li class="rail-item" data-section="contact"><a href="#contact"><span class="rail-index">05</span><span class="rail-label" data-i18n="nav.contact">Contact</span><span class="rail-dot"></span></a></li>
       </ol>
     </nav>
 
     <div class="landing-page" id="home">
         <section class="hero">
           <div class="hero-content">
-            <p class="eyebrow">01 // Software Developer</p>
-            <h1>Hello, my name is <span class="highlight" id="hero-name" title="try clicking me three times">Bert.</span></h1>
-            <h1>I am a <span class="highlight">Software Developer</span></h1>
+            <p class="eyebrow" data-i18n="hero.eyebrow">01 // Software Developer</p>
+            <h1><span data-i18n="hero.hello">Hello, my name is</span><span class="highlight" id="hero-name" title="Try clicking me three times" data-i18n-title="hero.nameTitle"> Bert.</span></h1>
+            <h1><span data-i18n="hero.iam">I am a</span><span class="highlight" title="My profession, if you were wondering :P" data-i18n="hero.role"> Software Developer</span></h1>
             <div class="cta-buttons">
-              <a href="#about" class="cta-button">About me</a>
-              <a href="#contact" class="cta-button secondary">Contact Me</a>
+              <a href="#about" class="cta-button" data-i18n="hero.ctaAbout">About me</a>
+              <a href="#contact" class="cta-button secondary" data-i18n="hero.ctaContact">Contact Me</a>
             </div>
           </div>
         </section>
@@ -82,15 +85,15 @@
         <section class="hero">
           <div class="hero-content2">
             <div class="text-content">
-              <p class="eyebrow">02 // Profile</p>
-              <h1>About Me</h1>
-              <p>Hi, I'm <span class="highlight">Bert</span>, a student <span class="highlight">Software Developer</span> at the <span class="highlight">ROC Technovium</span> in Nijmegen.</p>
-              <p>I love working on websites with <span class="highlight">VueJS/Javascript</span></p>
+              <p class="eyebrow" data-i18n="about.eyebrow">02 // Profile</p>
+              <h1 data-i18n="about.title">About Me</h1>
+              <p data-i18n-html="about.p1">Hi, I'm <span class="highlight">Bert</span>, a student <span class="highlight">Software Developer</span> at the <span class="highlight">ROC Technovium</span> in Nijmegen.</p>
+              <p data-i18n-html="about.p2">I love working on websites with <span class="highlight">VueJS/Javascript</span></p>
             </div>
             <div class="image-content">
               <div class="retro-window">
                 <div class="retro-titlebar"><div class="retro-dots"><i></i><i></i><i></i></div></div>
-                <img src="/src/laptop.jpg" alt="Laptop on a desk">
+                <img src="/src/laptop.jpg" alt="Laptop on a desk" data-i18n-alt="about.img">
               </div>
             </div>
           </div>
@@ -103,13 +106,13 @@
             <div class="image-content">
               <div class="retro-window">
                 <div class="retro-titlebar"><div class="retro-dots"><i></i><i></i><i></i></div></div>
-                <img src="/src/skills.webp" alt="Skills illustration">
+                <img src="/src/skills.webp" alt="Skills illustration" data-i18n-alt="skills.img">
               </div>
             </div>
             <div class="text-content">
-              <p class="eyebrow">03 // Stack</p>
-              <h1>Skills</h1>
-              <p>My strongest skill is Back-End, working with frameworks/languages like</p>
+              <p class="eyebrow" data-i18n="skills.eyebrow">03 // Stack</p>
+              <h1 data-i18n="skills.title">Skills</h1>
+              <p data-i18n="skills.p1">My strongest skill is Back-End, working with frameworks/languages like</p>
               <p><span class="highlight">Outsystems, Java, C, C++, Lua, Vue.js, Nuxt.js</span></p>
             </div>
           </div>
@@ -120,10 +123,10 @@
         <section class="hero">
           <div class="hero-content2">
             <div class="text-content">
-              <p class="eyebrow">04 // Off the clock</p>
-              <h1>Hobbies</h1>
-              <p>In my free time I test software and work with <a class="highlight" href="https://chamsyslighting.com/" target="_blank">Chamsys</a></p>
-              <p>Click <a class="highlight" href="https://github.com/BertNK" target="_blank">me</a> to learn more about my skills</p>
+              <p class="eyebrow" data-i18n="hobbies.eyebrow">04 // Off the clock</p>
+              <h1 data-i18n="hobbies.title">Hobbies</h1>
+              <p><span data-i18n="hobbies.p1">In my free time I test software and work with</span> <a class="highlight" href="https://chamsyslighting.com/" target="_blank">Chamsys</a></p>
+              <p><span data-i18n="hobbies.p2a">Click</span> <a class="highlight" href="https://github.com/BertNK" target="_blank" data-i18n="hobbies.p2link">me</a> <span data-i18n="hobbies.p2b">to learn more about my skills</span></p>
             </div>
             <div class="image-content">
               <div class="retro-window">
@@ -139,13 +142,13 @@
         <section class="hero">
           <div class="hero-content2">
             <div class="text-content">
-              <p class="eyebrow">05 // Say hello</p>
-              <h1>Get in Touch</h1>
-              <p>Want to connect with me?</p>
-              <p>Reach out via <a class="highlight" href="https://www.linkedin.com/in/bert-nikkelen-708283256/" target="_blank">LinkedIn</a> or <a class="highlight" href="mailto:bertnikkelen1@gmail.com?subject=Contact&body=Tekst">Email!</a></p>
+              <p class="eyebrow" data-i18n="contact.eyebrow">05 // Say hello</p>
+              <h1 data-i18n="contact.title">Get in Touch</h1>
+              <p data-i18n="contact.p1">Want to connect with me?</p>
+              <p><span data-i18n="contact.p2a">Reach out via</span> <a class="highlight" href="https://www.linkedin.com/in/bert-nikkelen-708283256/" target="_blank">LinkedIn</a> <span data-i18n="contact.p2b">or</span> <a class="highlight" href="mailto:bertnikkelen1@gmail.com?subject=Contact&body=Tekst" data-i18n="contact.p2email">Email!</a></p>
               <div class="contact-icons">
                   <a href="https://www.linkedin.com/in/bert-nikkelen-708283256/" target="_blank"><span class="icon-box"><img src="/src/linkedin.svg" alt="LinkedIn"></span></a>
-                  <button type="button" class="icon-box-btn" id="mail-open-btn" aria-haspopup="dialog" aria-controls="mail-modal"><span class="icon-box"><img src="/src/mail.svg" alt="Email"></span></button>
+                  <button type="button" class="icon-box-btn" id="mail-open-btn" aria-haspopup="dialog" aria-controls="mail-modal"><span class="icon-box"><img src="/src/mail.svg" alt="Email" data-i18n-alt="contact.iconEmail"></span></button>
                   <a href="https://github.com/BertNK" target="_blank"><span class="icon-box"><img src="/src/github.svg" alt="GitHub"></span></a>
               </div>
             </div>
@@ -156,30 +159,30 @@
     <div class="mail-backdrop" id="mail-backdrop" hidden>
       <div class="mail-panel" role="dialog" aria-modal="true" aria-labelledby="mail-panel-title" id="mail-modal">
         <div class="mail-panel-bar">
-          <span id="mail-panel-title">new message</span>
-          <button type="button" class="mail-panel-close" id="mail-close-btn" aria-label="Close">×</button>
+          <span id="mail-panel-title" data-i18n="mail.title">new message</span>
+          <button type="button" class="mail-panel-close" id="mail-close-btn" aria-label="Close" data-i18n-aria="common.close">×</button>
         </div>
         <div class="mail-to-row">
-          <span class="mail-to-label">to:</span>
+          <span class="mail-to-label" data-i18n="mail.to">to:</span>
           <span class="mail-to-address">bertnikkelen1@gmail.com</span>
-          <button type="button" class="mail-copy-btn" id="mail-copy-btn" aria-label="Copy email address">
+          <button type="button" class="mail-copy-btn" id="mail-copy-btn" aria-label="Copy email address" data-i18n-aria="mail.copy">
             <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="1"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg>
-            <span class="copy-toast" id="copy-toast">copied</span>
+            <span class="copy-toast" id="copy-toast" data-i18n="mail.copied">copied</span>
           </button>
         </div>
         <form class="mail-form" id="mail-form">
-          <label class="mail-field">Your name
+          <label class="mail-field"><span data-i18n="mail.name">Your name</span>
             <input type="text" name="name" required>
           </label>
-          <label class="mail-field">Your email
+          <label class="mail-field"><span data-i18n="mail.email">Your email</span>
             <input type="email" name="email" required>
           </label>
-          <label class="mail-field">Message
+          <label class="mail-field"><span data-i18n="mail.message">Message</span>
             <textarea name="message" rows="4" required></textarea>
           </label>
           <div class="mail-actions">
-            <button type="submit" class="cta-button">Send</button>
-            <span class="mail-hint">opens your email app</span>
+            <button type="submit" class="cta-button" data-i18n="mail.send">Send</button>
+            <span class="mail-hint" data-i18n="mail.hint">opens your email app</span>
           </div>
         </form>
       </div>
@@ -188,14 +191,14 @@
     <div class="mail-backdrop" id="confirm-backdrop" hidden>
       <div class="mail-panel confirm-panel" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
         <div class="mail-panel-bar">
-          <span id="confirm-title">Leaving this site</span>
-          <button type="button" class="mail-panel-close" id="confirm-close-btn" aria-label="Close">×</button>
+          <span id="confirm-title" data-i18n="confirm.title">Leaving this site</span>
+          <button type="button" class="mail-panel-close" id="confirm-close-btn" aria-label="Close" data-i18n-aria="common.close">×</button>
         </div>
         <div class="mail-form">
           <p id="confirm-message">This will open a new page.</p>
           <div class="confirm-actions">
-            <button type="button" class="cta-button" id="confirm-continue-btn">Continue</button>
-            <button type="button" class="cta-button secondary" id="confirm-cancel-btn">Cancel</button>
+            <button type="button" class="cta-button" id="confirm-continue-btn" data-i18n="confirm.continue">Continue</button>
+            <button type="button" class="cta-button secondary" id="confirm-cancel-btn" data-i18n="confirm.cancel">Cancel</button>
           </div>
         </div>
       </div>
@@ -203,7 +206,7 @@
 
     <div id="season-overlay" class="season-overlay" aria-hidden="true"></div>
 
-    <button type="button" class="scroll-hint" id="scroll-hint" hidden aria-label="Scroll to next section">
+    <button type="button" class="scroll-hint" id="scroll-hint" hidden aria-label="Scroll to next section" data-i18n-aria="scrollHint.aria">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l7 7 7-7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
 
