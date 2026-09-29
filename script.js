@@ -1114,9 +1114,9 @@
     // left top, middle top, right top - all above the name
     var spreadX = window.innerWidth <= 768 ? 42 : 55;
     var spots = [
-      { x: baseX - spreadX, y: heroY - 70 },
-      { x: baseX, y: heroY - 95 },
-      { x: baseX + spreadX, y: heroY - 70 }
+      { x: baseX - spreadX, y: heroY - 105 },
+      { x: baseX, y: heroY - 130 },
+      { x: baseX + spreadX, y: heroY - 105 }
     ];
     var els = [];
 
@@ -1147,7 +1147,7 @@
         dropScore(spot.x, spot.y);
         if (index === spots.length - 1) {
           playLevelUp();
-          dropLevelUp(baseX, Math.max(8, heroY - 62));
+          dropLevelUp(baseX, Math.max(8, heroY - 100));
         }
       });
       i += 1;
